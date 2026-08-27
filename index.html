@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="app-version" content="1.5.0">
 <title>DO_TakeOffer – Yılmaz Makine</title>
 <style>
 :root{
@@ -25,6 +26,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-s
 #splash .tap{position:absolute;bottom:calc(46px + env(safe-area-inset-bottom));font-size:13.5px;color:#b9bec3;
   animation:pulse 1.6s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:.45}50%{opacity:1}}
+#splash .verbox{position:absolute;left:calc(16px + env(safe-area-inset-left));bottom:calc(14px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:8px}
+#splash .verbox #verTxt{font-size:11px;color:#8b939b;opacity:.65;letter-spacing:.5px}
+#splash .verbox #btnUpdate{background:var(--red);color:#fff;border:0;border-radius:20px;padding:5px 11px;font-size:11px;font-weight:800;cursor:pointer;box-shadow:0 2px 8px rgba(200,16,46,.5);animation:pulse 1.6s ease-in-out infinite}
+#splash .sig{position:absolute;right:calc(16px + env(safe-area-inset-right));bottom:calc(14px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:6px;opacity:.42}
+#splash .sig img{width:20px;height:20px;border-radius:5px;object-fit:cover;filter:grayscale(.15)}
+#splash .sig .sigtxt{font-family:'Segoe Script','Bradley Hand','Brush Script MT','Comic Sans MS',cursive;font-style:italic;font-size:19px;color:#f0f2f4}
 /* ---------- HEADER ---------- */
 header.app{background:var(--blue);color:#fff;padding:10px 14px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50;box-shadow:0 2px 6px rgba(0,0,0,.18)}
 header.app img{width:40px;height:40px;border-radius:8px;background:#fff}
@@ -166,6 +173,14 @@ table.pf-t .c{text-align:center}
   <div class="tag">TEKLİF TALEP ASİSTANI</div>
   <div class="welcome">Hoşgeldiniz</div>
   <div class="tap">Başlamak için ekrana dokunun</div>
+  <div class="verbox">
+    <span id="verTxt"></span>
+    <button id="btnUpdate" class="hide">🔄 Güncelle</button>
+  </div>
+  <div class="sig">
+    <img id="sigLogo" alt="">
+    <span class="sigtxt">V.Şahin</span>
+  </div>
 </div>
 
 <header class="app">
@@ -326,6 +341,14 @@ table.pf-t .c{text-align:center}
     <button class="btn ghost" id="btnLogout">🚪 Oturumu kapat / farklı kullanıcı</button>
     <button class="btn ghost" id="btnClearB" style="color:var(--red);border-color:var(--red)">Bu cihazdaki bayi kaydımı sil</button>
   </div>
+  <div class="card">
+    <span class="lbl">🔄 Program Güncellemesi</span>
+    <div class="setstat">Bu cihazdaki sürüm: <b id="setVer"></b></div>
+    <span class="lbl" style="margin-top:10px">Yayındaki Adres (GitHub Pages linki)</span>
+    <input type="text" id="updUrl" placeholder="https://kullanici-adi.github.io/bayi-talep/">
+    <div class="prog" id="updProg"></div>
+    <button class="btn blue" id="btnUpdSave">💾 KAYDET VE KONTROL ET</button>
+  </div>
   <button class="btn red" id="btnSetBack">← ANA SAYFAYA DÖN</button>
 </div>
 </div>
@@ -423,8 +446,52 @@ async function idbDel(k){try{const db=await idb();return new Promise(res=>{const
 })();
 
 // Açılış: DO logosu · Diğer sayfalar: Yılmaz logosu
-$("slogo").src=(typeof APPLOGO!=="undefined"&&APPLOGO)?APPLOGO:DATA0.logo;
+// Açılış + diğer sayfalar: Yılmaz logosu · Küçük imza ikonu: DO logosu
+$("slogo").src=DATA0.logo;
 $("hlogo").src=DATA0.logo;$("flogo").src=DATA0.logo;
+$("sigLogo").src=(typeof APPLOGO!=="undefined"&&APPLOGO)?APPLOGO:DATA0.logo;
+
+// ================= SÜRÜM / GÜNCELLEME =================
+const APP_VERSION="1.5.0";
+$("verTxt").textContent="v"+APP_VERSION;
+$("setVer").textContent="v"+APP_VERSION;
+$("updUrl").value=store.get("yb_updUrl")||"";
+function getUpdateUrl(){return store.get("yb_updUrl")||"";}
+async function checkUpdate(silent){
+  const url=getUpdateUrl();
+  if(!url)return;
+  const prog=$("updProg");
+  try{
+    if(!silent&&prog)prog.textContent="Kontrol ediliyor...";
+    const res=await fetch(url,{cache:"no-store"});
+    if(!res.ok)throw new Error("http "+res.status);
+    const txt=await res.text();
+    const m=txt.match(/<meta\s+name=["']app-version["']\s+content=["']([^"']+)["']/i);
+    const remote=m&&m[1];
+    if(remote&&remote!==APP_VERSION){
+      $("btnUpdate").classList.remove("hide");
+      $("btnUpdate").dataset.url=url;
+      if(!silent&&prog)prog.textContent="✅ Yeni sürüm bulundu: v"+remote;
+    }else{
+      $("btnUpdate").classList.add("hide");
+      if(!silent&&prog)prog.textContent="Program güncel (v"+APP_VERSION+").";
+    }
+  }catch(e){
+    $("btnUpdate").classList.add("hide");
+    if(!silent&&prog)prog.textContent="⚠️ Kontrol edilemedi — internet bağlantısını kontrol edin.";
+  }
+}
+$("btnUpdate").addEventListener("click",e=>{
+  e.stopPropagation();
+  const u=$("btnUpdate").dataset.url||getUpdateUrl();
+  if(u)location.href=u;
+});
+$("btnUpdSave").onclick=()=>{
+  const u=$("updUrl").value.trim();
+  store.set("yb_updUrl",u);
+  checkUpdate(false);
+};
+setTimeout(()=>checkUpdate(true),700);
 
 // ================= HESAP / GİRİŞ =================
 function getUsers(){try{return JSON.parse(store.get("yb_users")||"{}")}catch(e){return{}}}
