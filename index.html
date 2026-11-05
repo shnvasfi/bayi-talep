@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<meta name="app-version" content="2026.11.05-2">
+<meta name="app-version" content="2026.11.05-3">
 <title>DO_TakeOffer – Yılmaz Makine</title>
 <style>
 :root{
@@ -74,6 +74,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--blue)}
 .optrow .otxt{flex:1;min-width:0}
 .optrow .on1{font-size:13.5px;font-weight:700}
 .optrow .on2{font-size:11.5px;color:var(--muted);margin-top:1px}
+.tipsel{width:100%;padding:12px 40px 12px 14px;font-size:15px;font-weight:700;color:var(--blue);border:1.5px solid var(--blue);border-radius:10px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9'%3E%3Cpath d='M1 1l6 6 6-6' stroke='%23285a7a' stroke-width='2' fill='none'/%3E%3C/svg%3E") no-repeat right 14px center;-webkit-appearance:none;appearance:none;cursor:pointer;margin-top:4px}
 .oqtyrow{display:flex;align-items:center;gap:10px;padding:4px 4px 10px 33px;opacity:.55}
 .optbox.sel2 .oqtyrow{opacity:1}
 .oqtyrow .oql{font-size:11px;font-weight:800;color:var(--green);letter-spacing:.5px}
@@ -285,7 +286,7 @@ table.pf-t .c{text-align:center}
     </div>
     <div class="card hide" id="pTipCard">
       <span class="lbl"><span class="stepnum">2</span>Kategori <span class="muted">(bu makinede kullanılanlar)</span></span>
-      <div class="chips" id="pTips"></div>
+      <select id="pTips" class="tipsel"></select>
     </div>
     <div class="card hide" id="pPartCard">
       <span class="lbl"><span class="stepnum">3</span>Parça Seçimi</span>
@@ -466,7 +467,7 @@ $("hlogo").src=_klogo;$("flogo").src=_klogo;
 $("sigLogo").src=(typeof APPLOGO!=="undefined"&&APPLOGO)?APPLOGO:DATA0.logo;
 
 // ================= SÜRÜM / GÜNCELLEME =================
-const APP_VERSION="2026.11.05-2";
+const APP_VERSION="2026.11.05-3";
 // Sürüm biçimi: YYYY.AA.GG-N (N = o günkü derleme sırası). build.py otomatik verir.
 function verKey(v){const m=String(v||"").match(/^(\d{4})\.(\d{2})\.(\d{2})-(\d+)$/);return m?(+(m[1]+m[2]+m[3]))*1000+(+m[4]):0;}
 $("verTxt").innerHTML='<i class="vdot"></i>Sürüm '+APP_VERSION;
@@ -778,25 +779,22 @@ function pickPMachine(mk){
   const akTxt=ak.length?('<div class="muted" style="margin-top:3px">Anakod doğrulandı: '+esc(ak[0])+(ak.length>1?' (+'+(ak.length-1)+' diğer)':'')+'</div>'):'';
   S.innerHTML='<div class="code" style="color:var(--blue)">'+esc(mk)+'</div>'+akTxt+
     '<div class="muted" style="margin-top:6px;cursor:pointer;color:var(--red);font-weight:700" onclick="resetSel()">✕ Değiştir</div>';
-  // kategori (tip) chip listesi
-  const tips=[...new Set((PP[mk]||[]).map(e=>e[1]))].sort();
-  const TC=$("pTips");TC.innerHTML="";
-  const allBtn=document.createElement("button");allBtn.className="chip on";allBtn.textContent="TÜMÜ";
-  allBtn.onclick=()=>pickTip(null,allBtn);
-  TC.appendChild(allBtn);
-  tips.forEach(t=>{
-    const b=document.createElement("button");b.className="chip";b.textContent=tipLabel(t);
-    b.onclick=()=>pickTip(t,b);
-    TC.appendChild(b);
-  });
+  // kategori (tip) açılır menüsü — parça sayılarıyla
+  const ents=(PP[mk]||[]).filter(e=>e[0]>=0);
+  const cnt={};ents.forEach(e=>{cnt[e[1]]=(cnt[e[1]]||0)+1;});
+  const tips=Object.keys(cnt).sort((a,b)=>tipLabel(a).localeCompare(tipLabel(b),"tr"));
+  const TC=$("pTips");
+  TC.innerHTML='<option value="">TÜMÜ ('+ents.length+' parça)</option>'+
+    tips.map(t=>'<option value="'+esc(t)+'">'+esc(tipLabel(t))+' — '+cnt[t]+' parça</option>').join("");
+  TC.value="";
   $("pTipCard").classList.remove("hide");
   $("pPartCard").classList.add("hide");
   $("pSel").classList.add("hide");
-  pickTip(null,allBtn);
+  pickTip(null);
 }
-function pickTip(t,btn){
+$("pTips").addEventListener("change",e=>pickTip(e.target.value||null));
+function pickTip(t){
   selTip=t;
-  document.querySelectorAll("#pTips .chip").forEach(x=>x.classList.toggle("on",x===btn));
   $("pSearch").value="";$("pSel").classList.add("hide");$("pSearch").classList.remove("hide");
   $("pPartCard").classList.remove("hide");
   renderPartList();
