@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<meta name="app-version" content="2026.11.05-1">
+<meta name="app-version" content="2026.11.05-2">
 <title>DO_TakeOffer – Yılmaz Makine</title>
 <style>
 :root{
@@ -74,8 +74,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--blue)}
 .optrow .otxt{flex:1;min-width:0}
 .optrow .on1{font-size:13.5px;font-weight:700}
 .optrow .on2{font-size:11.5px;color:var(--muted);margin-top:1px}
-.oqtyrow{display:none;align-items:center;gap:10px;padding:4px 4px 10px 33px}
-.optbox.sel2 .oqtyrow{display:flex}
+.oqtyrow{display:flex;align-items:center;gap:10px;padding:4px 4px 10px 33px;opacity:.55}
+.optbox.sel2 .oqtyrow{opacity:1}
 .oqtyrow .oql{font-size:11px;font-weight:800;color:var(--green);letter-spacing:.5px}
 .oqtyrow button{width:38px;height:38px;border-radius:8px;border:1.5px solid var(--green);background:#fff;color:var(--green);font-size:19px;font-weight:800;cursor:pointer}
 .oqtyrow .oqty{width:70px;padding:8px 4px;text-align:center;font-weight:800;font-size:15px;border:1.5px solid var(--green);border-radius:8px}
@@ -107,9 +107,12 @@ input:focus,select:focus,textarea:focus{border-color:var(--blue)}
 .cartbar .cnt{font-weight:800;font-size:14.5px;flex:1}
 .cartbar button{padding:11px 18px;border:0;border-radius:9px;font-weight:800;font-size:14.5px;cursor:pointer}
 .cartbar .go{background:var(--red);color:#fff}
-.cartbar .trash{background:none;border:1.5px solid rgba(255,255,255,.5);color:#fff;font-size:16px;padding:9px 13px}
+.cartbar .trash{background:none;border:1.5px solid rgba(255,255,255,.5);color:#fff;font-size:13px;padding:9px 12px;white-space:nowrap}
 /* ---------- sepet ön izleme (soluk gösterge) ---------- */
-#cartPreview{margin-top:16px;opacity:.6;pointer-events:none}
+#cartPreview{margin-top:16px}
+#cartPreview td:not(.x){opacity:.65}
+#cartPreview td.x{width:28px;text-align:center;padding:0 2px}
+#cartPreview .cdel{border:0;background:none;color:var(--red);font-size:14px;font-weight:700;cursor:pointer;padding:3px 6px;line-height:1}
 #cartPreview table{width:100%;border-collapse:collapse;font-size:11.5px;background:#fff;border:1px solid var(--line)}
 #cartPreview td{padding:4px 7px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
 #cartPreview td.nm{white-space:normal;width:100%}
@@ -152,6 +155,7 @@ table.pf-t .c{text-align:center}
 .pf-foot{margin-top:16px;font-size:11.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:8px;text-align:center}
 .pf-actions{max-width:800px;margin:0 auto;padding:0 18px 30px;display:flex;gap:10px}
 .pf-actions .btn{margin-top:0}
+@media(max-width:560px){.pf-actions{flex-wrap:wrap}.pf-actions .btn{flex:1 1 45%}}
 @media print{
   body{background:#fff}
   header.app,.pf-actions,.cartbar,#mainPage,#setPage,#splash,.noprint{display:none!important}
@@ -162,6 +166,10 @@ table.pf-t .c{text-align:center}
 }
 /* PDF üretimi sırasında (html2pdf) yazdırma görünümü */
 .pdfmode .noprint{display:none!important}
+.pdfmode .pf-grid textarea{resize:none}
+.pdfmode input::placeholder,.pdfmode textarea::placeholder{color:transparent}
+.nonote .notek,.nonote #bNot{display:none!important}
+@media print{#bNot{resize:none}#bNot::placeholder{color:transparent}}
 .pdfmode .pf-grid input,.pdfmode .pf-grid textarea,.pdfmode .pf-meta input{border:0;padding:0;background:#fff}
 .pdfmode table.pf-t .pfq{border:0;padding:0;width:auto;background:transparent}
 </style>
@@ -292,10 +300,10 @@ table.pf-t .c{text-align:center}
     <span class="lbl"><span class="stepnum" id="qtyStep">4</span><span id="qtyLbl">Adet</span></span>
     <div class="qtyrow">
       <button id="qMinus">−</button>
-      <input type="number" id="qty" value="" placeholder="1" min="1" inputmode="numeric">
+      <input type="number" id="qty" value="0" min="0" inputmode="numeric">
       <button id="qPlus">+</button>
     </div>
-    <button class="btn blue" id="btnAdd">➕ LİSTEYE EKLE</button>
+    <button class="btn blue hide" id="btnAdd">➕ LİSTEYE EKLE</button>
     <button class="btn ghost" id="btnClearSel">🧹 SEÇİMİ TEMİZLE</button>
   </div>
 
@@ -313,7 +321,7 @@ table.pf-t .c{text-align:center}
 
   <!-- ---- talep listesi bar: içerik akışında, hemen altta ---- -->
   <div class="cartbar hide" id="cartbar">
-    <button class="trash" id="btnClearCart" title="Listeyi temizle">🗑</button>
+    <button class="trash" id="btnClearCart" title="Listeyi temizle">🗑 TEMİZLE</button>
     <div class="cnt" id="cartCnt"></div>
     <button class="go" id="cartGo">TEKLİF İSTE ➜</button>
   </div>
@@ -379,7 +387,7 @@ table.pf-t .c{text-align:center}
       <div class="k">YETKİLİ</div><input id="bYetkili" placeholder="Ad Soyad">
       <div class="k">TELEFON</div><input id="bTel" type="tel" placeholder="+90 ...">
       <div class="k">E-POSTA</div><input id="bMail" type="email" placeholder="ornek@firma.com">
-      <div class="k">NOT</div><textarea id="bNot" rows="2" placeholder="Ek açıklama (isteğe bağlı)"></textarea>
+      <div class="k notek">NOT</div><textarea id="bNot" rows="2" placeholder="Ek açıklama (isteğe bağlı)"></textarea>
     </div>
 
     <div class="pf-sechead">TALEP EDİLEN ÜRÜNLER</div>
@@ -392,6 +400,7 @@ table.pf-t .c{text-align:center}
   </div>
   <div class="pf-actions">
     <button class="btn ghost" id="btnBack">← GERİ</button>
+    <button class="btn blue" id="btnView">👁 TEKLİFİ GÖR</button>
     <button class="btn blue" id="btnPrint">🖨️ YAZDIR / PDF</button>
     <button class="btn red" id="btnShare">📤 PAYLAŞ</button>
   </div>
@@ -457,7 +466,7 @@ $("hlogo").src=_klogo;$("flogo").src=_klogo;
 $("sigLogo").src=(typeof APPLOGO!=="undefined"&&APPLOGO)?APPLOGO:DATA0.logo;
 
 // ================= SÜRÜM / GÜNCELLEME =================
-const APP_VERSION="2026.11.05-1";
+const APP_VERSION="2026.11.05-2";
 // Sürüm biçimi: YYYY.AA.GG-N (N = o günkü derleme sırası). build.py otomatik verir.
 function verKey(v){const m=String(v||"").match(/^(\d{4})\.(\d{2})\.(\d{2})-(\d+)$/);return m?(+(m[1]+m[2]+m[3]))*1000+(+m[4]):0;}
 $("verTxt").innerHTML='<i class="vdot"></i>Sürüm '+APP_VERSION;
@@ -624,8 +633,8 @@ function resetSel(){
   $("pTipCard").classList.add("hide");$("pTips").innerHTML="";
   $("pPartCard").classList.add("hide");
   $("pSearch").value="";$("pList").style.display="none";$("pList").innerHTML="";$("pSel").classList.add("hide");$("pSearch").classList.remove("hide");
-  $("qty").value="";$("qtyCard").classList.add("hide");$("qtyLbl").textContent="Adet";
-  $("btnAdd").classList.remove("hide");optsOpened=false;
+  $("qty").value="0";$("qtyCard").classList.add("hide");$("qtyLbl").textContent="Adet";
+  $("btnAdd").classList.add("hide");optsOpened=false;
 }
 
 // ================= MAKINE FLOW =================
@@ -691,8 +700,7 @@ function showProd(mt){
   $("qtyStep").textContent="3";
   $("qtyLbl").textContent="Makine Adedi";
   $("mOptCard").classList.add("hide");$("mOpts").innerHTML="";optsOpened=false;
-  if(opts.length)$("btnAdd").classList.add("hide");
-  else $("btnAdd").classList.remove("hide");
+  $("qty").value="0";qtyChanged();
   $("qtyCard").classList.remove("hide");
   $("qtyCard").scrollIntoView({behavior:"smooth",block:"center"});
 }
@@ -711,12 +719,15 @@ function openOpts(){
     const box=document.createElement("div");box.className="optbox";
     box.innerHTML='<label class="optrow"><input type="checkbox" data-i="'+i+'">'+
       '<div class="otxt"><div class="on1">'+esc(o[1])+'</div><div class="on2">'+(o[0]!=="OPTION"?'<b>'+esc(o[0])+'</b> · ':'')+esc(o[2])+'</div></div></label>'+
-      '<div class="oqtyrow"><span class="oql">ADET</span><button type="button" class="oqm">−</button><input type="number" class="oqty" min="1" value="" placeholder="1" inputmode="numeric"><button type="button" class="oqp">+</button></div>';
+      '<div class="oqtyrow"><span class="oql">ADET</span><button type="button" class="oqm">−</button><input type="number" class="oqty" min="0" value="0" inputmode="numeric"><button type="button" class="oqp">+</button></div>';
     const cb=box.querySelector("input[type=checkbox]");
     const oq=box.querySelector(".oqty");
-    cb.addEventListener("change",()=>{box.classList.toggle("sel2",cb.checked);updateOptFooter();});
-    box.querySelector(".oqm").onclick=()=>{oq.value=Math.max(1,(+oq.value||1)-1);};
-    box.querySelector(".oqp").onclick=()=>{oq.value=(+oq.value||0)+1;};
+    // adet > 0 → opsiyon seçili; işaretlenince adet 0 ise 1 olur; işaret kalkınca adet 0
+    const sync=()=>{const v=Math.max(0,Math.floor(+oq.value||0));oq.value=v;cb.checked=v>0;box.classList.toggle("sel2",cb.checked);updateOptFooter();};
+    cb.addEventListener("change",()=>{if(cb.checked&&!(+oq.value>0))oq.value=1;if(!cb.checked)oq.value=0;sync();});
+    oq.addEventListener("input",sync);oq.addEventListener("change",sync);
+    box.querySelector(".oqm").onclick=()=>{oq.value=Math.max(0,(+oq.value||0)-1);sync();};
+    box.querySelector(".oqp").onclick=()=>{oq.value=(+oq.value||0)+1;sync();};
     OC.appendChild(box);
   });
   $("btnAddM").classList.add("hide");
@@ -724,7 +735,18 @@ function openOpts(){
   $("mOptCard").classList.remove("hide");
   $("mOptCard").scrollIntoView({behavior:"smooth",block:"center"});
 }
-["input","change","focus"].forEach(ev=>$("qty").addEventListener(ev,openOpts));
+// Ana adet: 0 → hiçbir şey aktif değil; > 0 → opsiyonlar açılır / Listeye Ekle görünür
+function qtyChanged(){
+  const q=Math.max(0,Math.floor(+$("qty").value||0));
+  const hasOpts=mode==="M"&&curOpts.length>0;
+  if(q>0&&hasOpts)openOpts();
+  $("btnAdd").classList.toggle("hide",!(q>0&&!hasOpts));
+  if(hasOpts&&optsOpened){
+    const ok=q>0;
+    $("mOptCard").classList.toggle("hide",!ok);
+  }
+}
+["input","change"].forEach(ev=>$("qty").addEventListener(ev,qtyChanged));
 
 // ================= PARCA FLOW (Makine → Kategori → Parça) =================
 let selMachP=null, selTip=null, curPEntries=[];
@@ -820,17 +842,18 @@ function pickPart(k){
 }
 
 // ================= QTY + CART =================
-$("qMinus").onclick=()=>{$("qty").value=Math.max(1,(+$("qty").value||1)-1);openOpts();};
-$("qPlus").onclick=()=>{$("qty").value=(+$("qty").value||0)+1;openOpts();};
+$("qMinus").onclick=()=>{$("qty").value=Math.max(0,(+$("qty").value||0)-1);qtyChanged();};
+$("qPlus").onclick=()=>{$("qty").value=(+$("qty").value||0)+1;qtyChanged();};
 function addCurrent(){
-  const q=Math.max(1,+$("qty").value||1);
+  const q=Math.floor(+$("qty").value||0);
+  if(q<1){$("qty").focus();return;}
   let item=null;
   if(mode==="M"&&selProd){
     const opts=[];
     document.querySelectorAll("#mOpts input[type=checkbox]:checked").forEach(c=>{
       const o=curOpts[+c.dataset.i];
-      const oq=Math.max(1,+c.closest(".optbox").querySelector(".oqty").value||1);
-      if(o)opts.push({code:o[0],name:o[1],qty:oq});
+      const oq=Math.floor(+c.closest(".optbox").querySelector(".oqty").value||0);
+      if(o&&oq>0)opts.push({code:o[0],name:o[1],qty:oq});
     });
     item={code:selProd[0],name:selProd[1],qty:q,opts};
   }
@@ -861,10 +884,16 @@ function renderCart(){
   if(has){
     let h='<table>';
     cart.forEach((it,i)=>{
-      h+='<tr><td class="c">'+(i+1)+'</td><td class="cd">'+esc(it.code)+'</td><td class="nm">'+esc(it.name)+'</td><td class="c">'+it.qty+'</td></tr>';
-      (it.opts||[]).forEach(o=>{h+='<tr><td></td><td class="cd" style="font-weight:400">↳ '+(o.code!=="OPTION"?esc(o.code):"OPS.")+'</td><td class="nm">'+esc(o.name)+'</td><td class="c">'+(o.qty||1)+'</td></tr>';});
+      h+='<tr><td class="c">'+(i+1)+'</td><td class="cd">'+esc(it.code)+'</td><td class="nm">'+esc(it.name)+'</td><td class="c">'+it.qty+'</td><td class="x"><button class="cdel" data-i="'+i+'" title="Kaldır">✕</button></td></tr>';
+      (it.opts||[]).forEach((o,oi)=>{h+='<tr><td></td><td class="cd" style="font-weight:400">↳ '+(o.code!=="OPTION"?esc(o.code):"OPS.")+'</td><td class="nm">'+esc(o.name)+'</td><td class="c">'+(o.qty||1)+'</td><td class="x"><button class="cdel" data-i="'+i+'" data-o="'+oi+'" title="Opsiyonu kaldır">✕</button></td></tr>';});
     });
     P.innerHTML=h+'</table>';
+    P.querySelectorAll(".cdel").forEach(b=>b.onclick=()=>{
+      const i=+b.dataset.i;
+      if(b.dataset.o!==undefined)cart[i].opts.splice(+b.dataset.o,1);
+      else cart.splice(i,1);
+      renderCart();
+    });
   }else P.innerHTML="";
 }
 $("btnClearSel").onclick=resetSel;
@@ -911,6 +940,9 @@ function openForm(){
 $("cartGo").onclick=openForm;
 $("btnBack").onclick=()=>{saveB();$("formPage").classList.add("hide");$("mainPage").classList.remove("hide");};
 $("btnPrint").onclick=()=>{saveB();window.print();};
+// Yazdırırken NOT boşsa satırı gizle
+window.addEventListener("beforeprint",()=>$("pfArea").classList.toggle("nonote",!$("bNot").value.trim()));
+window.addEventListener("afterprint",()=>$("pfArea").classList.remove("nonote"));
 function buildShareText(){
   let t="YILMAZ MAKİNE – TEKLİF TALEP FORMU\nTalep No: "+$("pfNo").value+"\nTarih: "+$("pfDate").textContent+"\nBayi: "+$("bFirma").value+" / "+$("bYetkili").value+"\nTel: "+$("bTel").value+" · E-posta: "+$("bMail").value+"\n\n";
   cart.forEach((it,i)=>{
@@ -957,22 +989,46 @@ async function shareAsText(){
   if(ok)alert("PDF oluşturulamadı (internet gerekli olabilir).\nTalep metni panoya kopyalandı, yapıştırarak gönderebilirsiniz.");
   else alert("Paylaşım yapılamadı. Yazdır/PDF butonunu kullanabilirsiniz.");
 }
-$("btnShare").onclick=async()=>{
-  saveB();
+function pdfName(){return "TeklifTalep_"+($("pfNo").value||"form").replace(/[^\w-]/g,"")+".pdf";}
+async function makePdfBlob(){
   const el=$("pfArea");
-  const fname="TeklifTalep_"+($("pfNo").value||"form").replace(/[^\w-]/g,"")+".pdf";
-  $("btnShare").disabled=true;
+  await loadPdfLib();
+  el.classList.add("pdfmode");
+  el.classList.toggle("nonote",!$("bNot").value.trim());
   try{
-    await loadPdfLib();
-    el.classList.add("pdfmode");
-    const blob=await html2pdf().set({
+    return await html2pdf().set({
       margin:[8,8,10,8],
       image:{type:"jpeg",quality:0.95},
       html2canvas:{scale:2,useCORS:true},
       jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},
       pagebreak:{mode:["avoid-all","css"]}
     }).from(el).outputPdf("blob");
-    el.classList.remove("pdfmode");
+  }finally{el.classList.remove("pdfmode","nonote");}
+}
+// Teklifi Gör: PDF'i yeni sekmede açar (açılamazsa indirir)
+$("btnView").onclick=async()=>{
+  saveB();
+  const w=window.open("","_blank");
+  if(w){try{w.document.write('<p style="font-family:sans-serif;padding:20px">Teklif talep formu hazırlanıyor...</p>');}catch(e){}}
+  $("btnView").disabled=true;
+  try{
+    const blob=await makePdfBlob();
+    const url=URL.createObjectURL(new File([blob],pdfName(),{type:"application/pdf"}));
+    if(w&&!w.closed)w.location.href=url;
+    else{const a=document.createElement("a");a.href=url;a.download=pdfName();document.body.appendChild(a);a.click();a.remove();}
+    setTimeout(()=>URL.revokeObjectURL(url),120000);
+  }catch(e){
+    if(w&&!w.closed)w.close();
+    alert("PDF oluşturulamadı. Yazdır/PDF butonunu kullanabilirsiniz.");
+  }finally{$("btnView").disabled=false;}
+};
+$("btnShare").onclick=async()=>{
+  saveB();
+  const el=$("pfArea");
+  const fname=pdfName();
+  $("btnShare").disabled=true;
+  try{
+    const blob=await makePdfBlob();
     const file=new File([blob],fname,{type:"application/pdf"});
     // 1) telefon: PDF dosyası olarak paylaşım menüsü
     if(navigator.canShare&&navigator.canShare({files:[file]})){
@@ -986,7 +1042,6 @@ $("btnShare").onclick=async()=>{
     setTimeout(()=>URL.revokeObjectURL(a.href),8000);
     alert("PDF indirildi: "+fname+"\nWhatsApp veya e-postaya dosya olarak ekleyebilirsiniz.");
   }catch(e){
-    el.classList.remove("pdfmode");
     await shareAsText();
   }finally{
     $("btnShare").disabled=false;
