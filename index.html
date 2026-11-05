@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<meta name="app-version" content="2026.11.05-4">
+<meta name="app-version" content="2026.11.05-7">
 <title>DO_TakeOffer – Yılmaz Makine</title>
 <style>
 :root{
@@ -145,6 +145,30 @@ table.pf-t .rdel{border:0;background:none;color:var(--red);font-size:16px;cursor
 .pf-meta b{color:var(--blue);margin-right:6px}
 .pf-meta input{border:1px solid var(--line);border-radius:6px;padding:3px 6px;width:110px;font-size:12px;text-align:right}
 .pf-sechead{background:var(--blue);color:#fff;font-weight:800;font-size:12.5px;padding:5px 10px;margin-top:14px;border-radius:4px;letter-spacing:.5px}
+/* bölüm çerçeveleri */
+.pf-sec{border:1.2px solid #c9d3dc;border-radius:7px;margin-top:22px;overflow:hidden;break-inside:avoid;page-break-inside:avoid}
+/* bölüm başına sol renkli şerit */
+/* Kurumsal palet: lacivert (firma) · Yılmaz kırmızısı (bayi) · petrol yeşili (ürünler) */
+.pf-sec.sec-uretici{border-left:5px solid #163a52}
+.pf-sec.sec-bayi{border-left:5px solid #b3132b}
+.pf-sec.sec-urun{border-left:5px solid #1d7874}
+.pf-sec{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.pf-sec .pf-sechead{margin-top:0;border-radius:0;padding:7px 12px}
+/* bilgi bölümleri tablo görünümünde: etiket hücresi gölgeli, satır ve sütun çizgili */
+.pf-sec .pf-grid{padding:0;gap:0;grid-template-columns:150px 1fr}
+.pf-sec .pf-grid>*{padding:7px 12px;min-height:32px;box-sizing:border-box;display:flex;align-items:center}
+.pf-sec .pf-grid>.k{background:#f2f5f8;border-right:1px solid #d8e0e7}
+.pf-sec .pf-grid>:nth-child(n+3){border-top:1px solid #e1e7ec}
+.pf-sec .pf-grid>input,.pf-sec .pf-grid>textarea{margin:4px 8px;padding:6px 8px;min-height:0;display:block;width:auto}
+.pf-sec .pf-grid>.notek{align-items:flex-start;padding-top:9px}
+.pf-sec .pf-grid>.notout{display:none}
+.pdfmode .pf-sec .pf-grid>.notout{display:block}
+.pdfmode .pf-sec .pf-grid>input{margin:0;padding:7px 12px;border-radius:0;height:auto;border-top:1px solid #e1e7ec!important}
+@media print{.pf-sec .pf-grid>.notout{display:block}.pf-sec .pf-grid>input{margin:0;padding:7px 12px;border-radius:0;border-top:1px solid #e1e7ec!important}}
+.pf-sec table.pf-t td+td,.pf-sec table.pf-t th+th{border-left:1px solid #e1e7ec}
+.pf-sec table.pf-t th+th{border-left-color:rgba(255,255,255,.25)}
+.pf-sec table.pf-t{margin-top:0}
+.pf-sec table.pf-t tr:last-child td{border-bottom:0}
 .pf-grid{display:grid;grid-template-columns:150px 1fr;gap:4px 10px;padding:8px 4px;font-size:13px}
 .pf-grid .k{font-weight:700;color:var(--muted);font-size:12px}
 .pf-grid input,.pf-grid textarea{padding:6px 8px;font-size:13px;border-radius:6px}
@@ -153,7 +177,7 @@ table.pf-t th{background:var(--blue);color:#fff;padding:7px 8px;text-align:left;
 table.pf-t td{padding:7px 8px;border-bottom:1px solid var(--line)}
 table.pf-t tr:nth-child(even) td{background:#f6f8fa}
 table.pf-t .c{text-align:center}
-.pf-foot{margin-top:16px;font-size:11.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:8px;text-align:center}
+.pf-foot{margin-top:22px;font-size:11.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:8px;text-align:center}
 .pf-actions{max-width:800px;margin:0 auto;padding:0 18px 30px;display:flex;gap:10px}
 .pf-actions .btn{margin-top:0}
 @media(max-width:560px){.pf-actions{flex-wrap:wrap}.pf-actions .btn{flex:1 1 45%}}
@@ -379,12 +403,15 @@ table.pf-t .c{text-align:center}
       </div>
     </div>
 
+    <div class="pf-sec sec-uretici">
     <div class="pf-sechead">ÜRETİCİ FİRMA</div>
     <div class="pf-grid">
       <div class="k">FİRMA</div><div>YILMAZ MAKİNE SANAYİ VE TİCARET A.Ş.</div>
       <div class="k">ADRES</div><div>DİLOVASI / KOCAELİ – TÜRKİYE</div>
     </div>
+    </div>
 
+    <div class="pf-sec sec-bayi">
     <div class="pf-sechead">BAYİ / TALEP EDEN</div>
     <div class="pf-grid">
       <div class="k">BAYİ FİRMA</div><input id="bFirma" placeholder="Firma adı">
@@ -393,12 +420,15 @@ table.pf-t .c{text-align:center}
       <div class="k">E-POSTA</div><input id="bMail" type="email" placeholder="ornek@firma.com">
       <div class="k notek">NOT</div><textarea id="bNot" rows="2" placeholder="Ek açıklama (isteğe bağlı)"></textarea><div id="bNotOut" class="notout"></div>
     </div>
+    </div>
 
+    <div class="pf-sec sec-urun">
     <div class="pf-sechead">TALEP EDİLEN ÜRÜNLER</div>
     <table class="pf-t">
       <thead><tr><th class="c" style="width:50px">SIRA NO</th><th style="width:160px">STOK KODU</th><th>STOK ADI</th><th class="c" style="width:70px">ADET</th><th class="c noprint" style="width:34px"></th></tr></thead>
       <tbody id="pfRows"></tbody>
     </table>
+    </div>
 
     <div class="pf-foot">Bu form fiyat teklifi talebidir; fiyatlandırma Yılmaz Makine tarafından ayrıca bildirilecektir.</div>
   </div>
@@ -470,7 +500,7 @@ $("hlogo").src=_klogo;$("flogo").src=_klogo;
 $("sigLogo").src=(typeof APPLOGO!=="undefined"&&APPLOGO)?APPLOGO:DATA0.logo;
 
 // ================= SÜRÜM / GÜNCELLEME =================
-const APP_VERSION="2026.11.05-4";
+const APP_VERSION="2026.11.05-7";
 // Sürüm biçimi: YYYY.AA.GG-N (N = o günkü derleme sırası). build.py otomatik verir.
 function verKey(v){const m=String(v||"").match(/^(\d{4})\.(\d{2})\.(\d{2})-(\d+)$/);return m?(+(m[1]+m[2]+m[3]))*1000+(+m[4]):0;}
 $("verTxt").innerHTML='<i class="vdot"></i>Sürüm '+APP_VERSION;
