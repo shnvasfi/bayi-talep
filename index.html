@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<meta name="app-version" content="2026.11.05-3">
+<meta name="app-version" content="2026.11.05-4">
 <title>DO_TakeOffer – Yılmaz Makine</title>
 <style>
 :root{
@@ -169,8 +169,11 @@ table.pf-t .c{text-align:center}
 .pdfmode .noprint{display:none!important}
 .pdfmode .pf-grid textarea{resize:none}
 .pdfmode input::placeholder,.pdfmode textarea::placeholder{color:transparent}
-.nonote .notek,.nonote #bNot{display:none!important}
-@media print{#bNot{resize:none}#bNot::placeholder{color:transparent}}
+.nonote .notek,.nonote #bNot,.nonote #bNotOut{display:none!important}
+#bNot{resize:vertical;overflow:hidden;min-height:58px;font-family:inherit;font-size:14px;line-height:1.45}
+.notout{display:none;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:anywhere;line-height:1.45;font-size:13px}
+.pdfmode #bNot{display:none!important}.pdfmode .notout{display:block}
+@media print{#bNot{display:none!important}.notout{display:block}input::placeholder{color:transparent}}
 .pdfmode .pf-grid input,.pdfmode .pf-grid textarea,.pdfmode .pf-meta input{border:0;padding:0;background:#fff}
 .pdfmode table.pf-t .pfq{border:0;padding:0;width:auto;background:transparent}
 </style>
@@ -388,7 +391,7 @@ table.pf-t .c{text-align:center}
       <div class="k">YETKİLİ</div><input id="bYetkili" placeholder="Ad Soyad">
       <div class="k">TELEFON</div><input id="bTel" type="tel" placeholder="+90 ...">
       <div class="k">E-POSTA</div><input id="bMail" type="email" placeholder="ornek@firma.com">
-      <div class="k notek">NOT</div><textarea id="bNot" rows="2" placeholder="Ek açıklama (isteğe bağlı)"></textarea>
+      <div class="k notek">NOT</div><textarea id="bNot" rows="2" placeholder="Ek açıklama (isteğe bağlı)"></textarea><div id="bNotOut" class="notout"></div>
     </div>
 
     <div class="pf-sechead">TALEP EDİLEN ÜRÜNLER</div>
@@ -467,7 +470,7 @@ $("hlogo").src=_klogo;$("flogo").src=_klogo;
 $("sigLogo").src=(typeof APPLOGO!=="undefined"&&APPLOGO)?APPLOGO:DATA0.logo;
 
 // ================= SÜRÜM / GÜNCELLEME =================
-const APP_VERSION="2026.11.05-3";
+const APP_VERSION="2026.11.05-4";
 // Sürüm biçimi: YYYY.AA.GG-N (N = o günkü derleme sırası). build.py otomatik verir.
 function verKey(v){const m=String(v||"").match(/^(\d{4})\.(\d{2})\.(\d{2})-(\d+)$/);return m?(+(m[1]+m[2]+m[3]))*1000+(+m[4]):0;}
 $("verTxt").innerHTML='<i class="vdot"></i>Sürüm '+APP_VERSION;
@@ -590,7 +593,7 @@ $("btnSetBack").onclick=()=>{$("setPage").classList.add("hide");$("mainPage").cl
 // ================= RESET (başa dön) =================
 function fullReset(){
   cart=[];renderCart();resetSel();
-  $("pfNo").value="";$("bNot").value="";
+  $("pfNo").value="";$("bNot").value="";$("bNotOut").textContent="";
   curUser=null;
   ["mainPage","setPage","formPage","loginPage"].forEach(id=>$(id).classList.add("hide"));
   $("splash").classList.remove("bye");$("splash").style.display="";
@@ -833,12 +836,16 @@ function pickPart(k){
   $("pList").style.display="none";$("pSearch").classList.add("hide");
   const S=$("pSel");S.classList.remove("hide");S.classList.add("psel");
   S.innerHTML='<div class="pcode">'+esc(selPart.code)+'</div>'+matLine(mi,dn)+'<div class="pname">'+esc(selPart.name)+'</div>'+
-    '<div class="muted" style="margin-top:6px;cursor:pointer;color:var(--red);font-weight:700" onclick="resetSel()">✕ Değiştir</div>';
+    '<div class="muted" style="margin-top:6px;cursor:pointer;color:var(--red);font-weight:700" onclick="changePart()">✕ Parçayı Değiştir</div>';
   $("qtyStep").textContent="4";
   $("qtyCard").classList.remove("hide");
   $("qtyCard").scrollIntoView({behavior:"smooth",block:"center"});
 }
 
+function changePart(){
+  selPart=null;$("qty").value="0";$("qtyCard").classList.add("hide");$("btnAdd").classList.add("hide");
+  $("pSel").classList.add("hide");$("pSearch").classList.remove("hide");renderPartList();
+}
 // ================= QTY + CART =================
 $("qMinus").onclick=()=>{$("qty").value=Math.max(0,(+$("qty").value||0)-1);qtyChanged();};
 $("qPlus").onclick=()=>{$("qty").value=(+$("qty").value||0)+1;qtyChanged();};
@@ -861,6 +868,15 @@ function addCurrent(){
   const ex=cart.find(x=>(x.code+"|"+JSON.stringify((x.opts||[]).map(o=>o.code+o.name)))===key);
   if(ex){ex.qty+=q;item.opts.forEach(o=>{const eo=(ex.opts||[]).find(x=>x.code===o.code&&x.name===o.name);if(eo)eo.qty+=o.qty;});}
   else cart.push(item);
+  if(mode==="P"&&selMachP){
+    // Yedek parça: makine ve kategori kalıcı — sadece parça/adet sıfırlanır
+    selPart=null;
+    $("qty").value="0";$("qtyCard").classList.add("hide");$("btnAdd").classList.add("hide");
+    $("pSel").classList.add("hide");$("pSearch").classList.remove("hide");$("pSearch").value="";
+    renderPartList();renderCart();
+    $("pPartCard").scrollIntoView({behavior:"smooth",block:"start"});
+    return;
+  }
   resetSel();renderCart();
   window.scrollTo({top:0,behavior:"smooth"});
 }
@@ -939,7 +955,10 @@ $("cartGo").onclick=openForm;
 $("btnBack").onclick=()=>{saveB();$("formPage").classList.add("hide");$("mainPage").classList.remove("hide");};
 $("btnPrint").onclick=()=>{saveB();window.print();};
 // Yazdırırken NOT boşsa satırı gizle
-window.addEventListener("beforeprint",()=>$("pfArea").classList.toggle("nonote",!$("bNot").value.trim()));
+// NOT: ekranda yazdıkça büyür; PDF/çıktıda satır sarmalı metin olarak basılır
+function syncNote(){const t=$("bNot");t.style.height="auto";t.style.height=(t.scrollHeight+2)+"px";$("bNotOut").textContent=t.value;}
+$("bNot").addEventListener("input",syncNote);
+window.addEventListener("beforeprint",()=>{syncNote();$("pfArea").classList.toggle("nonote",!$("bNot").value.trim());});
 window.addEventListener("afterprint",()=>$("pfArea").classList.remove("nonote"));
 function buildShareText(){
   let t="YILMAZ MAKİNE – TEKLİF TALEP FORMU\nTalep No: "+$("pfNo").value+"\nTarih: "+$("pfDate").textContent+"\nBayi: "+$("bFirma").value+" / "+$("bYetkili").value+"\nTel: "+$("bTel").value+" · E-posta: "+$("bMail").value+"\n\n";
@@ -992,6 +1011,7 @@ async function makePdfBlob(){
   const el=$("pfArea");
   await loadPdfLib();
   el.classList.add("pdfmode");
+  syncNote();
   el.classList.toggle("nonote",!$("bNot").value.trim());
   try{
     return await html2pdf().set({
