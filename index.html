@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<meta name="app-version" content="2026.11.05-7">
+<meta name="app-version" content="2026.11.05-8">
 <title>DO_TakeOffer – Yılmaz Makine</title>
 <style>
 :root{
@@ -23,6 +23,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-s
 #splash .wordmark .of{color:#9aa3ab}
 #splash .tag{font-size:13px;color:#9aa3ab;letter-spacing:3px;text-transform:uppercase}
 #splash .welcome{margin-top:18px;font-size:20px;font-weight:700;color:#fff}
+#splash .langrow{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:22px;padding:0 14px;max-width:560px}
+.langrow .lb{display:flex;align-items:center;gap:8px;padding:8px 13px 8px 9px;border-radius:24px;border:1.5px solid rgba(255,255,255,.28);background:rgba(255,255,255,.06);color:#e8eaec;font-size:12.5px;font-weight:800;letter-spacing:.6px;cursor:pointer;transition:all .15s}
+.langrow .lb svg{width:26px;height:17px;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.25);display:block;flex:none}
+.langrow .lb.on{background:#fff;color:var(--blue-dark);border-color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+.langrow.light{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-start;padding:0;margin-top:6px}
+.langrow.light .lb{border-color:var(--line);background:#fff;color:var(--blue)}
+.langrow.light .lb.on{background:var(--blue);color:#fff;border-color:var(--blue)}
 #splash .tap{position:absolute;bottom:calc(46px + env(safe-area-inset-bottom));font-size:13.5px;color:#b9bec3;
   animation:pulse 1.6s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:.45}50%{opacity:1}}
@@ -191,6 +198,13 @@ table.pf-t .c{text-align:center}
 }
 /* PDF üretimi sırasında (html2pdf) yazdırma görünümü */
 .pdfmode .noprint{display:none!important}
+/* Çok dilli PDF: seçili dil + altında küçük soluk Türkçe */
+.trs{display:none}
+.pdfmode .trs{display:block;font-size:.7em;font-weight:500;opacity:.6;line-height:1.15;margin-top:1px;letter-spacing:.2px}
+.pdfmode .pf-title .trs{font-size:.42em;letter-spacing:1px;margin-top:3px}
+.pdfmode .pf-foot .trs{font-size:.92em;margin-top:2px}
+.pf-sec .pf-grid>.k{flex-direction:column;align-items:flex-start;justify-content:center}
+@media print{.trs{display:block;font-size:.7em;font-weight:500;opacity:.6;line-height:1.15;margin-top:1px}.pf-title .trs{font-size:.42em;letter-spacing:1px;margin-top:3px}.pf-foot .trs{font-size:.92em}}
 .pdfmode .pf-grid textarea{resize:none}
 .pdfmode input::placeholder,.pdfmode textarea::placeholder{color:transparent}
 .nonote .notek,.nonote #bNot,.nonote #bNotOut{display:none!important}
@@ -208,12 +222,13 @@ table.pf-t .c{text-align:center}
 <div id="splash">
   <img id="slogo" alt="logo" style="width:min(78vw,400px);height:auto;border-radius:20px;background:#fff;box-shadow:0 14px 40px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.08);">
   <div class="wordmark"><span class="do">DO</span><span class="of">_TakeOffer</span></div>
-  <div class="tag">TEKLİF TALEP ASİSTANI</div>
-  <div class="welcome">Hoşgeldiniz</div>
-  <div class="tap">Başlamak için ekrana dokunun</div>
+  <div class="tag" data-i18n="tag">TEKLİF TALEP ASİSTANI</div>
+  <div class="welcome" data-i18n="welcome">Hoş geldiniz</div>
+  <div class="langrow" id="langRow"></div>
+  <div class="tap" data-i18n="tap">Başlamak için ekrana dokunun</div>
   <div class="verbox">
     <span id="verTxt"></span>
-    <button id="btnUpdate" class="hide">🔄 Güncelle</button>
+    <button id="btnUpdate" class="hide" data-i18n="update">🔄 Güncelle</button>
   </div>
   <div class="sig">
     <img id="sigLogo" alt="">
@@ -225,10 +240,10 @@ table.pf-t .c{text-align:center}
   <img id="hlogo" alt="logo">
   <div class="tt">
     <div class="t1">DO_TakeOffer</div>
-    <div class="t2">Yılmaz Makine · Bayi Talep</div>
+    <div class="t2" data-i18n="hdrSub">Yılmaz Makine · Bayi Talep</div>
   </div>
-  <button class="gear" id="btnReset" title="Başa dön">🔄</button>
-  <button class="gear" id="btnSet" title="Ayarlar">⚙️</button>
+  <button class="gear" id="btnReset" data-i18n-title="toStart" title="Başa dön">🔄</button>
+  <button class="gear" id="btnSet" data-i18n-title="settings" title="Ayarlar">⚙️</button>
 </header>
 
 <!-- ================= LOGIN ================= -->
@@ -237,39 +252,39 @@ table.pf-t .c{text-align:center}
 
   <!-- Hızlı giriş (kayıtlı kullanıcı) -->
   <div class="card hide" id="lgQuick">
-    <span class="lbl">🔐 Bayi Girişi</span>
+    <span class="lbl" data-i18n="dealerLogin">🔐 Bayi Girişi</span>
     <div class="hello" id="lgHelloName"></div>
     <div class="hmail" id="lgHelloMail"></div>
-    <div class="frow"><input type="password" id="lgQPass" placeholder="Şifre" autocomplete="current-password"></div>
+    <div class="frow"><input type="password" id="lgQPass" data-i18n-ph="password" placeholder="Şifre" autocomplete="current-password"></div>
     <div class="err" id="lgQErr"></div>
-    <button class="btn blue" id="btnQLogin">GİRİŞ YAP</button>
-    <span class="lnk" id="lnkOther">Farklı kullanıcı ile giriş yap</span>
+    <button class="btn blue" id="btnQLogin" data-i18n="login">GİRİŞ YAP</button>
+    <span class="lnk" id="lnkOther" data-i18n="otherUser">Farklı kullanıcı ile giriş yap</span>
   </div>
 
   <!-- Farklı kullanıcı girişi -->
   <div class="card hide" id="lgOther">
-    <span class="lbl">🔐 Bayi Girişi</span>
-    <div class="frow"><input type="email" id="lgOMail" placeholder="E-posta" autocomplete="username"></div>
-    <div class="frow"><input type="password" id="lgOPass" placeholder="Şifre" autocomplete="current-password"></div>
-    <div class="chk"><input type="checkbox" id="lgORem" checked><label for="lgORem">Beni hatırla</label></div>
+    <span class="lbl" data-i18n="dealerLogin">🔐 Bayi Girişi</span>
+    <div class="frow"><input type="email" id="lgOMail" data-i18n-ph="email" placeholder="E-posta" autocomplete="username"></div>
+    <div class="frow"><input type="password" id="lgOPass" data-i18n-ph="password" placeholder="Şifre" autocomplete="current-password"></div>
+    <div class="chk"><input type="checkbox" id="lgORem" checked><label for="lgORem" data-i18n="remember">Beni hatırla</label></div>
     <div class="err" id="lgOErr"></div>
-    <button class="btn blue" id="btnOLogin">GİRİŞ YAP</button>
-    <span class="lnk" id="lnkReg">Yeni bayi kaydı oluştur</span>
+    <button class="btn blue" id="btnOLogin" data-i18n="login">GİRİŞ YAP</button>
+    <span class="lnk" id="lnkReg" data-i18n="newReg">Yeni bayi kaydı oluştur</span>
   </div>
 
   <!-- Kayıt -->
   <div class="card hide" id="lgReg">
-    <span class="lbl">📝 Bayi Kaydı</span>
-    <div class="frow"><input type="text" id="rgFirma" placeholder="Bayi firma adı *"></div>
-    <div class="frow"><input type="text" id="rgYetkili" placeholder="Yetkili ad soyad *"></div>
-    <div class="frow"><input type="tel" id="rgTel" placeholder="Telefon *"></div>
-    <div class="frow"><input type="email" id="rgMail" placeholder="E-posta *" autocomplete="username"></div>
-    <div class="frow"><input type="password" id="rgPass" placeholder="Şifre *" autocomplete="new-password"></div>
-    <div class="frow"><input type="password" id="rgPass2" placeholder="Şifre (tekrar) *" autocomplete="new-password"></div>
-    <div class="chk"><input type="checkbox" id="rgRem" checked><label for="rgRem">Beni hatırla</label></div>
+    <span class="lbl" data-i18n="regTitle">📝 Bayi Kaydı</span>
+    <div class="frow"><input type="text" id="rgFirma" data-i18n-ph="rgFirma" placeholder="Bayi firma adı *"></div>
+    <div class="frow"><input type="text" id="rgYetkili" data-i18n-ph="rgYetkili" placeholder="Yetkili ad soyad *"></div>
+    <div class="frow"><input type="tel" id="rgTel" data-i18n-ph="rgTel" placeholder="Telefon *"></div>
+    <div class="frow"><input type="email" id="rgMail" data-i18n-ph="rgMail" placeholder="E-posta *" autocomplete="username"></div>
+    <div class="frow"><input type="password" id="rgPass" data-i18n-ph="rgPass" placeholder="Şifre *" autocomplete="new-password"></div>
+    <div class="frow"><input type="password" id="rgPass2" data-i18n-ph="rgPass2" placeholder="Şifre (tekrar) *" autocomplete="new-password"></div>
+    <div class="chk"><input type="checkbox" id="rgRem" checked><label for="rgRem" data-i18n="remember">Beni hatırla</label></div>
     <div class="err" id="rgErr"></div>
-    <button class="btn blue" id="btnReg">KAYIT OL VE GİRİŞ YAP</button>
-    <span class="lnk hide" id="lnkHaveAcc">Zaten kaydım var, giriş yap</span>
+    <button class="btn blue" id="btnReg" data-i18n="btnReg">KAYIT OL VE GİRİŞ YAP</button>
+    <span class="lnk hide" id="lnkHaveAcc" data-i18n="haveAcc">Zaten kaydım var, giriş yap</span>
   </div>
 
 </div></div>
@@ -280,24 +295,24 @@ table.pf-t .c{text-align:center}
 <div class="wrap">
 
   <div class="seg" id="segType">
-    <button data-t="M" class="on">🏭 MAKİNE</button>
-    <button data-t="P">⚙️ YEDEK PARÇA</button>
+    <button data-t="M" class="on" data-i18n="segM">🏭 MAKİNE</button>
+    <button data-t="P" data-i18n="segP">⚙️ YEDEK PARÇA</button>
   </div>
 
   <!-- ---- MAKINE FLOW ---- -->
   <div id="flowM">
     <div class="card">
-      <span class="lbl"><span class="stepnum">1</span>Makine Seçimi</span>
-      <input type="text" id="mSearch" placeholder="Listeden seçin veya yazarak arayın..." autocomplete="off">
+      <span class="lbl"><span class="stepnum">1</span><span data-i18n="mSelTitle">Makine Seçimi</span></span>
+      <input type="text" id="mSearch" data-i18n-ph="searchPh" placeholder="Listeden seçin veya yazarak arayın..." autocomplete="off">
       <div class="reslist" id="mList"></div>
       <div class="sel hide" id="mSel"></div>
     </div>
     <div class="card hide" id="mVoltCard">
-      <span class="lbl"><span class="stepnum">2</span>Voltaj Seçimi</span>
+      <span class="lbl"><span class="stepnum">2</span><span data-i18n="voltTitle">Voltaj Seçimi</span></span>
       <div class="chips" id="mVolts"></div>
     </div>
     <div class="card hide" id="mProdCard">
-      <span class="lbl"><span class="stepnum">3</span>Ürün</span>
+      <span class="lbl"><span class="stepnum">3</span><span data-i18n="prodTitle">Ürün</span></span>
       <div id="mProdPick" class="reslist" style="display:block"></div>
       <div class="sel hide" id="mProd"></div>
     </div>
@@ -306,18 +321,18 @@ table.pf-t .c{text-align:center}
   <!-- ---- PARCA FLOW ---- -->
   <div id="flowP" class="hide">
     <div class="card">
-      <span class="lbl"><span class="stepnum">1</span>Yedek Parça İçin Makine Seçimi</span>
-      <input type="text" id="pMSearch" placeholder="Listeden seçin veya yazarak arayın..." autocomplete="off">
+      <span class="lbl"><span class="stepnum">1</span><span data-i18n="pMachTitle">Yedek Parça İçin Makine Seçimi</span></span>
+      <input type="text" id="pMSearch" data-i18n-ph="searchPh" placeholder="Listeden seçin veya yazarak arayın..." autocomplete="off">
       <div class="reslist" id="pMList"></div>
       <div class="sel hide" id="pMSel"></div>
     </div>
     <div class="card hide" id="pTipCard">
-      <span class="lbl"><span class="stepnum">2</span>Kategori <span class="muted">(bu makinede kullanılanlar)</span></span>
+      <span class="lbl"><span class="stepnum">2</span><span data-i18n="catTitle">Kategori</span> <span class="muted" data-i18n="catSub">(bu makinede kullanılanlar)</span></span>
       <select id="pTips" class="tipsel"></select>
     </div>
     <div class="card hide" id="pPartCard">
-      <span class="lbl"><span class="stepnum">3</span>Parça Seçimi</span>
-      <input type="text" id="pSearch" placeholder="Kod veya isimle daraltın (isteğe bağlı)..." autocomplete="off">
+      <span class="lbl"><span class="stepnum">3</span><span data-i18n="partTitle">Parça Seçimi</span></span>
+      <input type="text" id="pSearch" data-i18n-ph="partPh" placeholder="Kod veya isimle daraltın (isteğe bağlı)..." autocomplete="off">
       <div class="reslist" id="pList" style="display:block"></div>
       <div class="sel hide" id="pSel"></div>
     </div>
@@ -331,17 +346,17 @@ table.pf-t .c{text-align:center}
       <input type="number" id="qty" value="0" min="0" inputmode="numeric">
       <button id="qPlus">+</button>
     </div>
-    <button class="btn blue hide" id="btnAdd">➕ LİSTEYE EKLE</button>
-    <button class="btn ghost" id="btnClearSel">🧹 SEÇİMİ TEMİZLE</button>
+    <button class="btn blue hide" id="btnAdd" data-i18n="addList">➕ LİSTEYE EKLE</button>
+    <button class="btn ghost" id="btnClearSel" data-i18n="clearSel">🧹 SEÇİMİ TEMİZLE</button>
   </div>
 
   <!-- ---- OPSİYONLAR (makine adedinden sonra) ---- -->
   <div class="card hide" id="mOptCard">
-    <span class="lbl"><span class="stepnum">4</span>Opsiyonlar <span class="muted">(seçince altında adetini girin)</span></span>
+    <span class="lbl"><span class="stepnum">4</span><span data-i18n="opts">Opsiyonlar</span> <span class="muted" data-i18n="optsSub">(adet girince seçilir)</span></span>
     <div id="mOpts"></div>
-    <button class="lnkbtn" id="btnSkipOpt">Opsiyon eklemeden devam ›</button>
-    <button class="btn blue hide" id="btnAddM">➕ LİSTEYE EKLE</button>
-    <button class="btn ghost" id="btnClearSelM">🧹 SEÇİMİ TEMİZLE</button>
+    <button class="lnkbtn" id="btnSkipOpt" data-i18n="skipOpt">Opsiyon eklemeden devam ›</button>
+    <button class="btn blue hide" id="btnAddM" data-i18n="addList">➕ LİSTEYE EKLE</button>
+    <button class="btn ghost" id="btnClearSelM" data-i18n="clearSel">🧹 SEÇİMİ TEMİZLE</button>
   </div>
 
   <!-- ---- soluk gösterge: eklenenler ---- -->
@@ -349,9 +364,9 @@ table.pf-t .c{text-align:center}
 
   <!-- ---- talep listesi bar: içerik akışında, hemen altta ---- -->
   <div class="cartbar hide" id="cartbar">
-    <button class="trash" id="btnClearCart" title="Listeyi temizle">🗑 TEMİZLE</button>
+    <button class="trash" id="btnClearCart" data-i18n-title="clearCartTitle" title="Listeyi temizle" data-i18n="clearCart">🗑 TEMİZLE</button>
     <div class="cnt" id="cartCnt"></div>
-    <button class="go" id="cartGo">TEKLİF İSTE ➜</button>
+    <button class="go" id="cartGo" data-i18n="requestQuote">TEKLİF İSTE ➜</button>
   </div>
 
 </div>
@@ -361,33 +376,37 @@ table.pf-t .c{text-align:center}
 <div id="setPage" class="hide">
 <div class="wrap">
   <div class="card">
-    <span class="lbl">📊 Veri Durumu</span>
+    <span class="lbl" data-i18n="langCard">🌐 Dil</span>
+    <div class="langrow light" id="langRowSet"></div>
+  </div>
+  <div class="card">
+    <span class="lbl" data-i18n="dataStatus">📊 Veri Durumu</span>
     <div class="setstat" id="setStat"></div>
   </div>
   <div class="card">
-    <span class="lbl">📥 Excel'den Veri Güncelle</span>
-    <div class="muted">Yeni <b>bast03</b> (stok listesi) ve/veya <b>yedek parça listesi</b> Excel dosyalarını seçerek ürün verilerini güncelleyebilirsiniz. (İlk kullanımda internet gerekir.)</div>
-    <div class="file"><span class="lbl" style="margin-top:10px">Stok Listesi (bast03 .xlsx)</span><input type="file" id="fBast" accept=".xlsx,.xls"></div>
-    <div class="file"><span class="lbl" style="margin-top:10px">Yedek Parça Kullanım Listesi (.xlsx)</span><input type="file" id="fYp" accept=".xlsx,.xls"></div>
+    <span class="lbl" data-i18n="excelTitle">📥 Excel'den Veri Güncelle</span>
+    <div class="muted" data-i18n-html="excelDesc">Yeni <b>bast03</b> (stok listesi) ve/veya <b>yedek parça listesi</b> Excel dosyalarını seçerek ürün verilerini güncelleyebilirsiniz. (İlk kullanımda internet gerekir.)</div>
+    <div class="file"><span class="lbl" style="margin-top:10px" data-i18n="stockList">Stok Listesi (bast03 .xlsx)</span><input type="file" id="fBast" accept=".xlsx,.xls"></div>
+    <div class="file"><span class="lbl" style="margin-top:10px" data-i18n="partList">Yedek Parça Kullanım Listesi (.xlsx)</span><input type="file" id="fYp" accept=".xlsx,.xls"></div>
     <div class="prog" id="setProg"></div>
-    <button class="btn blue" id="btnImport">🔄 GÜNCELLE</button>
-    <button class="btn ghost" id="btnResetData">↩️ GÖMÜLÜ VERİYE GERİ DÖN</button>
+    <button class="btn blue" id="btnImport" data-i18n="btnImport">🔄 GÜNCELLE</button>
+    <button class="btn ghost" id="btnResetData" data-i18n="resetData">↩️ GÖMÜLÜ VERİYE GERİ DÖN</button>
   </div>
   <div class="card">
-    <span class="lbl">👤 Hesap</span>
+    <span class="lbl" data-i18n="account">👤 Hesap</span>
     <div class="setstat" id="setUser"></div>
-    <button class="btn ghost" id="btnLogout">🚪 Oturumu kapat / farklı kullanıcı</button>
-    <button class="btn ghost" id="btnClearB" style="color:var(--red);border-color:var(--red)">Bu cihazdaki bayi kaydımı sil</button>
+    <button class="btn ghost" id="btnLogout" data-i18n="logout">🚪 Oturumu kapat / farklı kullanıcı</button>
+    <button class="btn ghost" id="btnClearB" style="color:var(--red);border-color:var(--red)" data-i18n="clearB">Bu cihazdaki bayi kaydımı sil</button>
   </div>
   <div class="card">
-    <span class="lbl">🔄 Program Güncellemesi</span>
-    <div class="setstat">Bu cihazdaki sürüm: <b id="setVer"></b></div>
-    <span class="lbl" style="margin-top:10px">Yayındaki Adres (GitHub Pages linki)</span>
+    <span class="lbl" data-i18n="progUpd">🔄 Program Güncellemesi</span>
+    <div class="setstat"><span data-i18n="deviceVer">Bu cihazdaki sürüm:</span> <b id="setVer"></b></div>
+    <span class="lbl" style="margin-top:10px" data-i18n="pubUrl">Yayındaki Adres (GitHub Pages linki)</span>
     <input type="text" id="updUrl" placeholder="https://kullanici-adi.github.io/bayi-talep/">
     <div class="prog" id="updProg"></div>
-    <button class="btn blue" id="btnUpdSave">💾 KAYDET VE KONTROL ET</button>
+    <button class="btn blue" id="btnUpdSave" data-i18n="saveCheck">💾 KAYDET VE KONTROL ET</button>
   </div>
-  <button class="btn red" id="btnSetBack">← ANA SAYFAYA DÖN</button>
+  <button class="btn red" id="btnSetBack" data-i18n="backHome">← ANA SAYFAYA DÖN</button>
 </div>
 </div>
 
@@ -396,47 +415,47 @@ table.pf-t .c{text-align:center}
   <div class="pf" id="pfArea">
     <div class="pf-head">
       <img id="flogo" alt="logo">
-      <div class="pf-title">TEKLİF TALEP FORMU</div>
+      <div class="pf-title" data-fl="formTitle">TEKLİF TALEP FORMU</div>
       <div class="pf-meta">
-        <div><b>TARİH</b><span id="pfDate"></span></div>
-        <div><b>TALEP NO</b><input id="pfNo"></div>
+        <div><b data-fl="fDate">TARİH</b><span id="pfDate"></span></div>
+        <div><b data-fl="fReqNo">TALEP NO</b><input id="pfNo"></div>
       </div>
     </div>
 
     <div class="pf-sec sec-uretici">
-    <div class="pf-sechead">ÜRETİCİ FİRMA</div>
+    <div class="pf-sechead" data-fl="fMaker">ÜRETİCİ FİRMA</div>
     <div class="pf-grid">
-      <div class="k">FİRMA</div><div>YILMAZ MAKİNE SANAYİ VE TİCARET A.Ş.</div>
-      <div class="k">ADRES</div><div>DİLOVASI / KOCAELİ – TÜRKİYE</div>
+      <div class="k" data-fl="fFirm">FİRMA</div><div>YILMAZ MAKİNE SANAYİ VE TİCARET A.Ş.</div>
+      <div class="k" data-fl="fAddr">ADRES</div><div data-i18n="fAddrVal">DİLOVASI / KOCAELİ – TÜRKİYE</div>
     </div>
     </div>
 
     <div class="pf-sec sec-bayi">
-    <div class="pf-sechead">BAYİ / TALEP EDEN</div>
+    <div class="pf-sechead" data-fl="fDealer">BAYİ / TALEP EDEN</div>
     <div class="pf-grid">
-      <div class="k">BAYİ FİRMA</div><input id="bFirma" placeholder="Firma adı">
-      <div class="k">YETKİLİ</div><input id="bYetkili" placeholder="Ad Soyad">
-      <div class="k">TELEFON</div><input id="bTel" type="tel" placeholder="+90 ...">
-      <div class="k">E-POSTA</div><input id="bMail" type="email" placeholder="ornek@firma.com">
-      <div class="k notek">NOT</div><textarea id="bNot" rows="2" placeholder="Ek açıklama (isteğe bağlı)"></textarea><div id="bNotOut" class="notout"></div>
+      <div class="k" data-fl="fDealerFirm">BAYİ FİRMA</div><input id="bFirma" data-i18n-ph="phFirm" placeholder="Firma adı">
+      <div class="k" data-fl="fContact">YETKİLİ</div><input id="bYetkili" data-i18n-ph="phName" placeholder="Ad Soyad">
+      <div class="k" data-fl="fPhone">TELEFON</div><input id="bTel" type="tel" placeholder="+90 ...">
+      <div class="k" data-fl="fMail">E-POSTA</div><input id="bMail" type="email" data-i18n-ph="phMail" placeholder="ornek@firma.com">
+      <div class="k notek" data-fl="fNote">NOT</div><textarea id="bNot" rows="2" data-i18n-ph="phNote" placeholder="Ek açıklama (isteğe bağlı)"></textarea><div id="bNotOut" class="notout"></div>
     </div>
     </div>
 
     <div class="pf-sec sec-urun">
-    <div class="pf-sechead">TALEP EDİLEN ÜRÜNLER</div>
+    <div class="pf-sechead" data-fl="fItems">TALEP EDİLEN ÜRÜNLER</div>
     <table class="pf-t">
-      <thead><tr><th class="c" style="width:50px">SIRA NO</th><th style="width:160px">STOK KODU</th><th>STOK ADI</th><th class="c" style="width:70px">ADET</th><th class="c noprint" style="width:34px"></th></tr></thead>
+      <thead><tr><th class="c" style="width:50px" data-fl="thNo">SIRA NO</th><th style="width:160px" data-fl="thCode">STOK KODU</th><th data-fl="thName">STOK ADI</th><th class="c" style="width:70px" data-fl="thQty">ADET</th><th class="c noprint" style="width:34px"></th></tr></thead>
       <tbody id="pfRows"></tbody>
     </table>
     </div>
 
-    <div class="pf-foot">Bu form fiyat teklifi talebidir; fiyatlandırma Yılmaz Makine tarafından ayrıca bildirilecektir.</div>
+    <div class="pf-foot" data-fl="fFoot">Bu form fiyat teklifi talebidir; fiyatlandırma Yılmaz Makine tarafından ayrıca bildirilecektir.</div>
   </div>
   <div class="pf-actions">
-    <button class="btn ghost" id="btnBack">← GERİ</button>
-    <button class="btn blue" id="btnView">👁 TEKLİFİ GÖR</button>
-    <button class="btn blue" id="btnPrint">🖨️ YAZDIR / PDF</button>
-    <button class="btn red" id="btnShare">📤 PAYLAŞ</button>
+    <button class="btn ghost" id="btnBack" data-i18n="back">← GERİ</button>
+    <button class="btn blue" id="btnView" data-i18n="view">👁 TEKLİFİ GÖR</button>
+    <button class="btn blue" id="btnPrint" data-i18n="print">🖨️ YAZDIR / PDF</button>
+    <button class="btn red" id="btnShare" data-i18n="share">📤 PAYLAŞ</button>
   </div>
 </div>
 
@@ -455,6 +474,221 @@ const SQLOGO="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8x
 </script>
 <script>
 "use strict";
+// =====================================================================
+// DO_TakeOffer — DİL DOSYASI (tr / en / ru / es)
+// Yeni metin eklerken 4 dilin hepsine aynı anahtarla ekleyin.
+// {0}, {1} → t("anahtar", deger0, deger1) ile doldurulur.
+// =====================================================================
+const LANGS=["tr","en","ru","es"];
+const LANGNAME={tr:"TÜRKÇE",en:"ENGLISH",ru:"РУССКИЙ",es:"ESPAÑOL"};
+const LOCALE={tr:"tr-TR",en:"en-GB",ru:"ru-RU",es:"es-ES"};
+
+// Bayraklar (gömülü SVG — Windows'ta emoji bayrak görünmediği için)
+const FLAGS={
+ tr:'<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#E30A17"/><circle cx="10.625" cy="10" r="5" fill="#fff"/><circle cx="11.875" cy="10" r="4" fill="#E30A17"/><polygon fill="#fff" points="12.083,10.000 13.810,9.439 13.810,7.622 14.878,9.092 16.606,8.531 15.538,10.000 16.606,11.469 14.878,10.908 13.810,12.378 13.810,10.561"/></svg>',
+ en:'<svg viewBox="0 0 60 30" preserveAspectRatio="xMidYMid slice"><clipPath id="fgs"><path d="M0,0v30h60V0z"/></clipPath><clipPath id="fgt"><path d="M30,15h30v15zv15H0zH0V0zV0h30z"/></clipPath><g clip-path="url(#fgs)"><path d="M0,0v30h60V0z" fill="#012169"/><path d="M0,0 60,30M60,0 0,30" stroke="#fff" stroke-width="6"/><path d="M0,0 60,30M60,0 0,30" clip-path="url(#fgt)" stroke="#C8102E" stroke-width="4"/><path d="M30,0v30M0,15h60" stroke="#fff" stroke-width="10"/><path d="M30,0v30M0,15h60" stroke="#C8102E" stroke-width="6"/></g></svg>',
+ ru:'<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#fff"/><rect y="6.67" width="30" height="6.67" fill="#0039A6"/><rect y="13.33" width="30" height="6.67" fill="#D52B1E"/></svg>',
+ es:'<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#AA151B"/><rect y="5" width="30" height="10" fill="#F1BF00"/></svg>'
+};
+
+const I18N={
+// ---------------- AÇILIŞ / ÜST BAR ----------------
+tag:{tr:"TEKLİF TALEP ASİSTANI",en:"QUOTATION REQUEST ASSISTANT",ru:"ПОМОЩНИК ЗАПРОСА КП",es:"ASISTENTE DE SOLICITUD DE OFERTA"},
+welcome:{tr:"Hoş geldiniz",en:"Welcome",ru:"Добро пожаловать",es:"Bienvenido"},
+tap:{tr:"Başlamak için ekrana dokunun",en:"Tap the screen to start",ru:"Коснитесь экрана, чтобы начать",es:"Toque la pantalla para empezar"},
+pickLang:{tr:"Dil seçin",en:"Select language",ru:"Выберите язык",es:"Seleccione idioma"},
+update:{tr:"🔄 Güncelle",en:"🔄 Update",ru:"🔄 Обновить",es:"🔄 Actualizar"},
+version:{tr:"Sürüm",en:"Version",ru:"Версия",es:"Versión"},
+hdrSub:{tr:"Yılmaz Makine · Bayi Talep",en:"Yılmaz Machine · Dealer Request",ru:"Yılmaz Machine · Запрос дилера",es:"Yılmaz Machine · Pedido de distribuidor"},
+toStart:{tr:"Başa dön",en:"Back to start",ru:"В начало",es:"Volver al inicio"},
+settings:{tr:"Ayarlar",en:"Settings",ru:"Настройки",es:"Ajustes"},
+confirmReset:{tr:"Program başa dönsün mü? Talep listesi silinecek.",en:"Return to start? The request list will be cleared.",ru:"Вернуться в начало? Список запроса будет очищен.",es:"¿Volver al inicio? La lista de solicitud se borrará."},
+
+// ---------------- GİRİŞ / KAYIT ----------------
+dealerLogin:{tr:"🔐 Bayi Girişi",en:"🔐 Dealer Login",ru:"🔐 Вход для дилера",es:"🔐 Acceso de distribuidor"},
+password:{tr:"Şifre",en:"Password",ru:"Пароль",es:"Contraseña"},
+email:{tr:"E-posta",en:"E-mail",ru:"Эл. почта",es:"Correo electrónico"},
+login:{tr:"GİRİŞ YAP",en:"LOG IN",ru:"ВОЙТИ",es:"ENTRAR"},
+otherUser:{tr:"Farklı kullanıcı ile giriş yap",en:"Log in as a different user",ru:"Войти под другим пользователем",es:"Entrar con otro usuario"},
+remember:{tr:"Beni hatırla",en:"Remember me",ru:"Запомнить меня",es:"Recordarme"},
+newReg:{tr:"Yeni bayi kaydı oluştur",en:"Create a new dealer account",ru:"Зарегистрировать нового дилера",es:"Crear nueva cuenta de distribuidor"},
+regTitle:{tr:"📝 Bayi Kaydı",en:"📝 Dealer Registration",ru:"📝 Регистрация дилера",es:"📝 Registro de distribuidor"},
+rgFirma:{tr:"Bayi firma adı *",en:"Dealer company name *",ru:"Название компании дилера *",es:"Nombre de la empresa *"},
+rgYetkili:{tr:"Yetkili ad soyad *",en:"Contact person full name *",ru:"ФИО контактного лица *",es:"Nombre y apellidos del contacto *"},
+rgTel:{tr:"Telefon *",en:"Phone *",ru:"Телефон *",es:"Teléfono *"},
+rgMail:{tr:"E-posta *",en:"E-mail *",ru:"Эл. почта *",es:"Correo electrónico *"},
+rgPass:{tr:"Şifre *",en:"Password *",ru:"Пароль *",es:"Contraseña *"},
+rgPass2:{tr:"Şifre (tekrar) *",en:"Password (repeat) *",ru:"Пароль (повтор) *",es:"Contraseña (repetir) *"},
+btnReg:{tr:"KAYIT OL VE GİRİŞ YAP",en:"REGISTER AND LOG IN",ru:"ЗАРЕГИСТРИРОВАТЬСЯ И ВОЙТИ",es:"REGISTRARSE Y ENTRAR"},
+haveAcc:{tr:"Zaten kaydım var, giriş yap",en:"I already have an account, log in",ru:"У меня уже есть аккаунт, войти",es:"Ya tengo cuenta, entrar"},
+hello:{tr:"Hoş geldin, {0}",en:"Welcome, {0}",ru:"Добро пожаловать, {0}",es:"Bienvenido, {0}"},
+errPass:{tr:"Şifre hatalı.",en:"Incorrect password.",ru:"Неверный пароль.",es:"Contraseña incorrecta."},
+errNoUser:{tr:"Bu e-posta ile kayıt bulunamadı.",en:"No account found with this e-mail.",ru:"Аккаунт с этой эл. почтой не найден.",es:"No hay ninguna cuenta con este correo."},
+errFill:{tr:"Lütfen tüm zorunlu alanları doldurun.",en:"Please fill in all required fields.",ru:"Пожалуйста, заполните все обязательные поля.",es:"Complete todos los campos obligatorios."},
+errMail:{tr:"Geçerli bir e-posta girin.",en:"Enter a valid e-mail address.",ru:"Введите корректный адрес эл. почты.",es:"Introduzca un correo válido."},
+errPassLen:{tr:"Şifre en az 4 karakter olmalı.",en:"Password must be at least 4 characters.",ru:"Пароль должен содержать не менее 4 символов.",es:"La contraseña debe tener al menos 4 caracteres."},
+errPassMatch:{tr:"Şifreler uyuşmuyor.",en:"Passwords do not match.",ru:"Пароли не совпадают.",es:"Las contraseñas no coinciden."},
+errExists:{tr:"Bu e-posta zaten kayıtlı. Giriş yapın.",en:"This e-mail is already registered. Please log in.",ru:"Эта эл. почта уже зарегистрирована. Войдите.",es:"Este correo ya está registrado. Inicie sesión."},
+
+// ---------------- ANA EKRAN ----------------
+segM:{tr:"🏭 MAKİNE",en:"🏭 MACHINE",ru:"🏭 СТАНОК",es:"🏭 MÁQUINA"},
+segP:{tr:"⚙️ YEDEK PARÇA",en:"⚙️ SPARE PART",ru:"⚙️ ЗАПЧАСТЬ",es:"⚙️ REPUESTO"},
+mSelTitle:{tr:"Makine Seçimi",en:"Machine Selection",ru:"Выбор станка",es:"Selección de máquina"},
+searchPh:{tr:"Listeden seçin veya yazarak arayın...",en:"Select from the list or type to search...",ru:"Выберите из списка или введите для поиска...",es:"Elija de la lista o escriba para buscar..."},
+voltTitle:{tr:"Voltaj Seçimi",en:"Voltage Selection",ru:"Выбор напряжения",es:"Selección de voltaje"},
+prodTitle:{tr:"Ürün",en:"Product",ru:"Изделие",es:"Producto"},
+pMachTitle:{tr:"Yedek Parça İçin Makine Seçimi",en:"Select Machine for Spare Parts",ru:"Выбор станка для запчастей",es:"Seleccione la máquina para repuestos"},
+catTitle:{tr:"Kategori",en:"Category",ru:"Категория",es:"Categoría"},
+catSub:{tr:"(bu makinede kullanılanlar)",en:"(used on this machine)",ru:"(используемые в этом станке)",es:"(usados en esta máquina)"},
+partTitle:{tr:"Parça Seçimi",en:"Part Selection",ru:"Выбор запчасти",es:"Selección de pieza"},
+partPh:{tr:"Kod veya isimle daraltın (isteğe bağlı)...",en:"Filter by code or name (optional)...",ru:"Фильтр по коду или названию (необязательно)...",es:"Filtrar por código o nombre (opcional)..."},
+qty:{tr:"Adet",en:"Quantity",ru:"Количество",es:"Cantidad"},
+machQty:{tr:"Makine Adedi",en:"Machine Quantity",ru:"Количество станков",es:"Cantidad de máquinas"},
+addList:{tr:"➕ LİSTEYE EKLE",en:"➕ ADD TO LIST",ru:"➕ ДОБАВИТЬ В СПИСОК",es:"➕ AÑADIR A LA LISTA"},
+clearSel:{tr:"🧹 SEÇİMİ TEMİZLE",en:"🧹 CLEAR SELECTION",ru:"🧹 СБРОСИТЬ ВЫБОР",es:"🧹 BORRAR SELECCIÓN"},
+opts:{tr:"Opsiyonlar",en:"Options",ru:"Опции",es:"Opciones"},
+optsSub:{tr:"(adet girince seçilir)",en:"(selected when a quantity is entered)",ru:"(выбирается при вводе количества)",es:"(se selecciona al indicar cantidad)"},
+skipOpt:{tr:"Opsiyon eklemeden devam ›",en:"Continue without options ›",ru:"Продолжить без опций ›",es:"Continuar sin opciones ›"},
+clearCart:{tr:"🗑 TEMİZLE",en:"🗑 CLEAR",ru:"🗑 ОЧИСТИТЬ",es:"🗑 VACIAR"},
+clearCartTitle:{tr:"Listeyi temizle",en:"Clear the list",ru:"Очистить список",es:"Vaciar la lista"},
+requestQuote:{tr:"TEKLİF İSTE ➜",en:"REQUEST QUOTE ➜",ru:"ЗАПРОСИТЬ КП ➜",es:"PEDIR OFERTA ➜"},
+change:{tr:"✕ Değiştir",en:"✕ Change",ru:"✕ Изменить",es:"✕ Cambiar"},
+changePart:{tr:"✕ Parçayı Değiştir",en:"✕ Change part",ru:"✕ Изменить запчасть",es:"✕ Cambiar pieza"},
+standard:{tr:"Standart",en:"Standard",ru:"Стандарт",es:"Estándar"},
+anakod:{tr:"Anakod doğrulandı: {0}",en:"Main code verified: {0}",ru:"Основной код подтверждён: {0}",es:"Código principal verificado: {0}"},
+others:{tr:"(+{0} diğer)",en:"(+{0} more)",ru:"(+{0} других)",es:"(+{0} más)"},
+allParts:{tr:"TÜMÜ ({0} parça)",en:"ALL ({0} parts)",ru:"ВСЕ ({0} шт.)",es:"TODOS ({0} piezas)"},
+nParts:{tr:"{0} parça",en:"{0} parts",ru:"{0} шт.",es:"{0} piezas"},
+noResult:{tr:"Sonuç bulunamadı",en:"No results found",ru:"Ничего не найдено",es:"No se encontraron resultados"},
+diffGroup:{tr:"(+{0} farklı grup)",en:"(+{0} other groups)",ru:"(+{0} других групп)",es:"(+{0} otros grupos)"},
+optQty:{tr:"ADET",en:"QTY",ru:"КОЛ-ВО",es:"CANT."},
+cartCnt:{tr:"{0} kalem / {1} adet",en:"{0} items / {1} pcs",ru:"{0} поз. / {1} шт.",es:"{0} artículos / {1} uds."},
+remove:{tr:"Kaldır",en:"Remove",ru:"Удалить",es:"Quitar"},
+removeOpt:{tr:"Opsiyonu kaldır",en:"Remove option",ru:"Удалить опцию",es:"Quitar opción"},
+opsShort:{tr:"OPS.",en:"OPT.",ru:"ОПЦ.",es:"OPC."},
+confirmClear:{tr:"Talep listesindeki tüm ürünler silinsin mi?",en:"Remove all items from the request list?",ru:"Удалить все позиции из списка запроса?",es:"¿Quitar todos los artículos de la lista?"},
+
+// ---------------- AYARLAR ----------------
+langCard:{tr:"🌐 Dil",en:"🌐 Language",ru:"🌐 Язык",es:"🌐 Idioma"},
+dataStatus:{tr:"📊 Veri Durumu",en:"📊 Data Status",ru:"📊 Состояние данных",es:"📊 Estado de datos"},
+statLine:{tr:"Kaynak: <b>{0}</b> · Güncelleme: <b>{1}</b><br>Makine modeli: <b>{2}</b> · Yedek parça: <b>{3}</b> · Yedek parça makinesi: <b>{4}</b>",
+          en:"Source: <b>{0}</b> · Updated: <b>{1}</b><br>Machine models: <b>{2}</b> · Spare parts: <b>{3}</b> · Machines with parts: <b>{4}</b>",
+          ru:"Источник: <b>{0}</b> · Обновлено: <b>{1}</b><br>Моделей станков: <b>{2}</b> · Запчастей: <b>{3}</b> · Станков с запчастями: <b>{4}</b>",
+          es:"Fuente: <b>{0}</b> · Actualizado: <b>{1}</b><br>Modelos de máquina: <b>{2}</b> · Repuestos: <b>{3}</b> · Máquinas con repuestos: <b>{4}</b>"},
+excelTitle:{tr:"📥 Excel'den Veri Güncelle",en:"📥 Update Data from Excel",ru:"📥 Обновить данные из Excel",es:"📥 Actualizar datos desde Excel"},
+excelDesc:{tr:"Yeni <b>bast03</b> (stok listesi) ve/veya <b>yedek parça listesi</b> Excel dosyalarını seçerek ürün verilerini güncelleyebilirsiniz. (İlk kullanımda internet gerekir.)",
+           en:"Select new <b>bast03</b> (stock list) and/or <b>spare parts list</b> Excel files to update product data. (Internet is required on first use.)",
+           ru:"Выберите новые файлы Excel <b>bast03</b> (список склада) и/или <b>список запчастей</b> для обновления данных. (При первом использовании нужен интернет.)",
+           es:"Seleccione nuevos archivos Excel <b>bast03</b> (lista de stock) y/o <b>lista de repuestos</b> para actualizar los datos. (Se necesita internet la primera vez.)"},
+stockList:{tr:"Stok Listesi (bast03 .xlsx)",en:"Stock List (bast03 .xlsx)",ru:"Список склада (bast03 .xlsx)",es:"Lista de stock (bast03 .xlsx)"},
+partList:{tr:"Yedek Parça Kullanım Listesi (.xlsx)",en:"Spare Parts Usage List (.xlsx)",ru:"Список применения запчастей (.xlsx)",es:"Lista de uso de repuestos (.xlsx)"},
+btnImport:{tr:"🔄 GÜNCELLE",en:"🔄 UPDATE",ru:"🔄 ОБНОВИТЬ",es:"🔄 ACTUALIZAR"},
+resetData:{tr:"↩️ GÖMÜLÜ VERİYE GERİ DÖN",en:"↩️ REVERT TO BUILT-IN DATA",ru:"↩️ ВЕРНУТЬ ВСТРОЕННЫЕ ДАННЫЕ",es:"↩️ VOLVER A LOS DATOS INTEGRADOS"},
+account:{tr:"👤 Hesap",en:"👤 Account",ru:"👤 Аккаунт",es:"👤 Cuenta"},
+loggedIn:{tr:"Giriş yapan:",en:"Logged in:",ru:"Вошёл:",es:"Sesión iniciada:"},
+logout:{tr:"🚪 Oturumu kapat / farklı kullanıcı",en:"🚪 Log out / different user",ru:"🚪 Выйти / другой пользователь",es:"🚪 Cerrar sesión / otro usuario"},
+clearB:{tr:"Bu cihazdaki bayi kaydımı sil",en:"Delete my dealer account on this device",ru:"Удалить мою учётную запись на этом устройстве",es:"Eliminar mi cuenta en este dispositivo"},
+confirmDelB:{tr:"Bu cihazdaki bayi kaydınız silinsin mi?",en:"Delete your dealer account on this device?",ru:"Удалить вашу учётную запись дилера на этом устройстве?",es:"¿Eliminar su cuenta de distribuidor en este dispositivo?"},
+progUpd:{tr:"🔄 Program Güncellemesi",en:"🔄 Program Update",ru:"🔄 Обновление программы",es:"🔄 Actualización del programa"},
+deviceVer:{tr:"Bu cihazdaki sürüm:",en:"Version on this device:",ru:"Версия на этом устройстве:",es:"Versión en este dispositivo:"},
+pubUrl:{tr:"Yayındaki Adres (GitHub Pages linki)",en:"Published Address (GitHub Pages link)",ru:"Адрес публикации (ссылка GitHub Pages)",es:"Dirección publicada (enlace de GitHub Pages)"},
+saveCheck:{tr:"💾 KAYDET VE KONTROL ET",en:"💾 SAVE AND CHECK",ru:"💾 СОХРАНИТЬ И ПРОВЕРИТЬ",es:"💾 GUARDAR Y COMPROBAR"},
+backHome:{tr:"← ANA SAYFAYA DÖN",en:"← BACK TO MAIN PAGE",ru:"← НА ГЛАВНУЮ",es:"← VOLVER A LA PÁGINA PRINCIPAL"},
+checking:{tr:"Kontrol ediliyor...",en:"Checking...",ru:"Проверка...",es:"Comprobando..."},
+newFound:{tr:"✅ Yeni sürüm bulundu: {0}",en:"✅ New version found: {0}",ru:"✅ Найдена новая версия: {0}",es:"✅ Nueva versión encontrada: {0}"},
+upToDate:{tr:"Program güncel ({0}).",en:"Program is up to date ({0}).",ru:"Программа актуальна ({0}).",es:"El programa está actualizado ({0})."},
+checkFail:{tr:"⚠️ Kontrol edilemedi — internet bağlantısını kontrol edin.",en:"⚠️ Could not check — please check your internet connection.",ru:"⚠️ Не удалось проверить — проверьте подключение к интернету.",es:"⚠️ No se pudo comprobar — revise su conexión a internet."},
+selExcel:{tr:"Lütfen en az bir Excel dosyası seçin.",en:"Please select at least one Excel file.",ru:"Выберите хотя бы один файл Excel.",es:"Seleccione al menos un archivo Excel."},
+libLoading:{tr:"Kütüphane yükleniyor...",en:"Loading library...",ru:"Загрузка библиотеки...",es:"Cargando biblioteca..."},
+readStock:{tr:"Stok listesi okunuyor... (büyük dosya, lütfen bekleyin)",en:"Reading stock list... (large file, please wait)",ru:"Чтение списка склада... (большой файл, подождите)",es:"Leyendo lista de stock... (archivo grande, espere)"},
+readParts:{tr:"Yedek parça listesi okunuyor...",en:"Reading spare parts list...",ru:"Чтение списка запчастей...",es:"Leyendo lista de repuestos..."},
+saving:{tr:"Kaydediliyor...",en:"Saving...",ru:"Сохранение...",es:"Guardando..."},
+dataUpdated:{tr:"✅ Veriler güncellendi: {0} model, {1} parça.",en:"✅ Data updated: {0} models, {1} parts.",ru:"✅ Данные обновлены: {0} моделей, {1} запчастей.",es:"✅ Datos actualizados: {0} modelos, {1} piezas."},
+errPrefix:{tr:"⚠️ Hata: {0}",en:"⚠️ Error: {0}",ru:"⚠️ Ошибка: {0}",es:"⚠️ Error: {0}"},
+backEmbedded:{tr:"Gömülü veriye dönüldü.",en:"Reverted to built-in data.",ru:"Возвращены встроенные данные.",es:"Se volvió a los datos integrados."},
+
+// ---------------- FORM / PDF (PDF'te altına küçük Türkçe yazılanlar) ----------------
+formTitle:{tr:"TEKLİF TALEP FORMU",en:"QUOTATION REQUEST FORM",ru:"ФОРМА ЗАПРОСА КОММЕРЧЕСКОГО ПРЕДЛОЖЕНИЯ",es:"FORMULARIO DE SOLICITUD DE OFERTA"},
+fDate:{tr:"TARİH",en:"DATE",ru:"ДАТА",es:"FECHA"},
+fReqNo:{tr:"TALEP NO",en:"REQUEST NO",ru:"№ ЗАПРОСА",es:"N.º SOLICITUD"},
+fMaker:{tr:"ÜRETİCİ FİRMA",en:"MANUFACTURER",ru:"ПРОИЗВОДИТЕЛЬ",es:"FABRICANTE"},
+fFirm:{tr:"FİRMA",en:"COMPANY",ru:"КОМПАНИЯ",es:"EMPRESA"},
+fAddr:{tr:"ADRES",en:"ADDRESS",ru:"АДРЕС",es:"DIRECCIÓN"},
+fDealer:{tr:"BAYİ / TALEP EDEN",en:"DEALER / REQUESTER",ru:"ДИЛЕР / ЗАКАЗЧИК",es:"DISTRIBUIDOR / SOLICITANTE"},
+fDealerFirm:{tr:"BAYİ FİRMA",en:"DEALER COMPANY",ru:"КОМПАНИЯ ДИЛЕРА",es:"EMPRESA DISTRIBUIDORA"},
+fContact:{tr:"YETKİLİ",en:"CONTACT PERSON",ru:"КОНТАКТНОЕ ЛИЦО",es:"PERSONA DE CONTACTO"},
+fPhone:{tr:"TELEFON",en:"PHONE",ru:"ТЕЛЕФОН",es:"TELÉFONO"},
+fMail:{tr:"E-POSTA",en:"E-MAIL",ru:"ЭЛ. ПОЧТА",es:"CORREO"},
+fNote:{tr:"NOT",en:"NOTE",ru:"ПРИМЕЧАНИЕ",es:"NOTA"},
+fItems:{tr:"TALEP EDİLEN ÜRÜNLER",en:"REQUESTED PRODUCTS",ru:"ЗАПРАШИВАЕМЫЕ ИЗДЕЛИЯ",es:"PRODUCTOS SOLICITADOS"},
+thNo:{tr:"SIRA NO",en:"NO",ru:"№",es:"N.º"},
+thCode:{tr:"STOK KODU",en:"STOCK CODE",ru:"КОД",es:"CÓDIGO"},
+thName:{tr:"STOK ADI",en:"DESCRIPTION",ru:"НАИМЕНОВАНИЕ",es:"DESCRIPCIÓN"},
+thQty:{tr:"ADET",en:"QTY",ru:"КОЛ-ВО",es:"CANT."},
+fOption:{tr:"OPSİYON",en:"OPTION",ru:"ОПЦИЯ",es:"OPCIÓN"},
+fFoot:{tr:"Bu form fiyat teklifi talebidir; fiyatlandırma Yılmaz Makine tarafından ayrıca bildirilecektir.",
+       en:"This form is a request for quotation; pricing will be provided separately by Yılmaz Machine.",
+       ru:"Данная форма является запросом коммерческого предложения; цены будут сообщены компанией Yılmaz Machine отдельно.",
+       es:"Este formulario es una solicitud de oferta; los precios serán comunicados por separado por Yılmaz Machine."},
+// Adres her dilde resmi Türkçe yazımıyla kalır (kargo/yazışma için)
+fAddrVal:{tr:"DİLOVASI / KOCAELİ – TÜRKİYE",en:"DİLOVASI / KOCAELİ – TÜRKİYE",ru:"DİLOVASI / KOCAELİ – TÜRKİYE",es:"DİLOVASI / KOCAELİ – TÜRKİYE"},
+phFirm:{tr:"Firma adı",en:"Company name",ru:"Название компании",es:"Nombre de la empresa"},
+phName:{tr:"Ad Soyad",en:"Full name",ru:"ФИО",es:"Nombre y apellidos"},
+phMail:{tr:"ornek@firma.com",en:"example@company.com",ru:"primer@company.com",es:"ejemplo@empresa.com"},
+phNote:{tr:"Ek açıklama (isteğe bağlı)",en:"Additional note (optional)",ru:"Дополнительное примечание (необязательно)",es:"Nota adicional (opcional)"},
+back:{tr:"← GERİ",en:"← BACK",ru:"← НАЗАД",es:"← ATRÁS"},
+view:{tr:"👁 TEKLİFİ GÖR",en:"👁 VIEW REQUEST",ru:"👁 ПРОСМОТР",es:"👁 VER SOLICITUD"},
+print:{tr:"🖨️ YAZDIR / PDF",en:"🖨️ PRINT / PDF",ru:"🖨️ ПЕЧАТЬ / PDF",es:"🖨️ IMPRIMIR / PDF"},
+share:{tr:"📤 PAYLAŞ",en:"📤 SHARE",ru:"📤 ОТПРАВИТЬ",es:"📤 COMPARTIR"},
+preparing:{tr:"Teklif talep formu hazırlanıyor...",en:"Preparing the quotation request form...",ru:"Подготовка формы запроса...",es:"Preparando el formulario de solicitud..."},
+pdfFail:{tr:"PDF oluşturulamadı. Yazdır/PDF butonunu kullanabilirsiniz.",en:"The PDF could not be created. You can use the Print/PDF button.",ru:"Не удалось создать PDF. Воспользуйтесь кнопкой «Печать / PDF».",es:"No se pudo crear el PDF. Puede usar el botón Imprimir/PDF."},
+pdfFailCopied:{tr:"PDF oluşturulamadı (internet gerekli olabilir).\nTalep metni panoya kopyalandı, yapıştırarak gönderebilirsiniz.",en:"The PDF could not be created (internet may be required).\nThe request text has been copied to the clipboard; you can paste and send it.",ru:"Не удалось создать PDF (может потребоваться интернет).\nТекст запроса скопирован в буфер обмена — вставьте и отправьте его.",es:"No se pudo crear el PDF (puede requerir internet).\nEl texto de la solicitud se copió al portapapeles; puede pegarlo y enviarlo."},
+shareFail:{tr:"Paylaşım yapılamadı. Yazdır/PDF butonunu kullanabilirsiniz.",en:"Sharing failed. You can use the Print/PDF button.",ru:"Не удалось поделиться. Воспользуйтесь кнопкой «Печать / PDF».",es:"No se pudo compartir. Puede usar el botón Imprimir/PDF."},
+pdfSaved:{tr:"PDF indirildi: {0}\nWhatsApp veya e-postaya dosya olarak ekleyebilirsiniz.",en:"PDF downloaded: {0}\nYou can attach it to WhatsApp or e-mail.",ru:"PDF загружен: {0}\nЕго можно прикрепить к WhatsApp или эл. письму.",es:"PDF descargado: {0}\nPuede adjuntarlo en WhatsApp o en un correo."},
+shareTitle:{tr:"Teklif Talep",en:"Quotation Request",ru:"Запрос КП",es:"Solicitud de oferta"},
+shareText:{tr:"Yılmaz Makine teklif talep formu",en:"Yılmaz Machine quotation request form",ru:"Форма запроса КП Yılmaz Machine",es:"Formulario de solicitud de oferta Yılmaz Machine"},
+pdfPrefix:{tr:"TeklifTalep",en:"QuoteRequest",ru:"ZaprosKP",es:"SolicitudOferta"},
+shHead:{tr:"YILMAZ MAKİNE – TEKLİF TALEP FORMU",en:"YILMAZ MACHINE – QUOTATION REQUEST FORM",ru:"YILMAZ MACHINE – ФОРМА ЗАПРОСА КП",es:"YILMAZ MACHINE – FORMULARIO DE SOLICITUD DE OFERTA"},
+shReqNo:{tr:"Talep No",en:"Request No",ru:"№ запроса",es:"N.º solicitud"},
+shDate:{tr:"Tarih",en:"Date",ru:"Дата",es:"Fecha"},
+shDealer:{tr:"Bayi",en:"Dealer",ru:"Дилер",es:"Distribuidor"},
+shTel:{tr:"Tel",en:"Tel",ru:"Тел.",es:"Tel."},
+shUnit:{tr:"adet",en:"pcs",ru:"шт.",es:"uds."},
+shNote:{tr:"Not",en:"Note",ru:"Примечание",es:"Nota"}
+};
+
+// Yedek parça kategori (TİP) etiketleri
+const TIPLABEL_I18N={
+ en:{"1EL":"Electrical","1ET":"Label","2ET":"Label","1PN":"Pneumatic","1HD":"Hydraulic","0AA":"Software",
+  "1SA":"Mechanical (Sheet)","1SK":"Mechanical (Cutting)","1SC":"Mechanical (Fastening)","1SR":"Mechanical (Bearing/Ring)",
+  "1SB":"Mechanical (Ball)","1PL":"Plastic","2TU":"Machining (Fitting)","1TU":"Machining (Turning)","TUB":"Machining (Tube)",
+  "3UA":"Semi-Complete Assembly","3UB":"Semi-Complete Assembly","0FS":"Consumable / Fastener","1YY":"Spring",
+  "1DL":"Rack and Pinion","1HM":"Barrier","3SY":"System Group","1AM":"Packaging","0KT":"Kit","0DB":"Casting","0KK":"Welded Constr."},
+ ru:{"1EL":"Электрика","1ET":"Этикетка","2ET":"Этикетка","1PN":"Пневматика","1HD":"Гидравлика","0AA":"ПО",
+  "1SA":"Механика (листовая)","1SK":"Механика (режущая)","1SC":"Механика (крепёж)","1SR":"Механика (подшипник/кольцо)",
+  "1SB":"Механика (шарик)","1PL":"Пластик","2TU":"Изготовление (слесарная)","1TU":"Изготовление (токарная)","TUB":"Изготовление (труба)",
+  "3UA":"Полукомплектный узел","3UB":"Полукомплектный узел","0FS":"Расходники / крепёж","1YY":"Пружина",
+  "1DL":"Рейка и шестерня","1HM":"Ограждение","3SY":"Системная группа","1AM":"Упаковка","0KT":"Комплект","0DB":"Литьё","0KK":"Сварная конструкция"},
+ es:{"1EL":"Eléctrico","1ET":"Etiqueta","2ET":"Etiqueta","1PN":"Neumático","1HD":"Hidráulico","0AA":"Software",
+  "1SA":"Mecánico (Chapa)","1SK":"Mecánico (Corte)","1SC":"Mecánico (Fijación)","1SR":"Mecánico (Rodamiento/Anillo)",
+  "1SB":"Mecánico (Bola)","1PL":"Plástico","2TU":"Fabricación (Ajuste)","1TU":"Fabricación (Torneado)","TUB":"Fabricación (Tubo)",
+  "3UA":"Grupo semicompleto","3UB":"Grupo semicompleto","0FS":"Consumible / Fijación","1YY":"Muelle",
+  "1DL":"Cremallera y piñón","1HM":"Barrera","3SY":"Grupo de sistema","1AM":"Embalaje","0KT":"Kit","0DB":"Fundición","0KK":"Constr. soldada"}
+};
+
+let LANG=(function(){try{const l=localStorage.getItem("yb_lang");return LANGS.includes(l)?l:"tr";}catch(e){return"tr";}})();
+function t(k){
+  const e=I18N[k];let s=e?(e[LANG]||e.tr):k;
+  for(let i=1;i<arguments.length;i++)s=s.split("{"+(i-1)+"}").join(arguments[i]);
+  return s;
+}
+function tTR(k){const e=I18N[k];return e?e.tr:k;}
+// Form/PDF etiketi: seçili dil + (Türkçe değilse) altında küçük soluk Türkçe — sadece PDF/çıktıda görünür
+function fl(k){
+  const esc2=s=>String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+  return '<span class="lt">'+esc2(t(k))+'</span>'+(LANG!=="tr"?'<span class="trs">'+esc2(tTR(k))+'</span>':'');
+}
+
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
@@ -470,15 +704,15 @@ const TIPLABEL={
   "1DL":"Krameyer ve Pinyon","1HM":"Bariyer",
   "3SY":"Sistem Grubu","1AM":"Ambalaj","0KT":"Kit","0DB":"Döküm","0KK":"Kaynaklı Konstr."
 };
-function tipLabel(t){return TIPLABEL[t]?TIPLABEL[t]+" ("+t+")":t;}
+function tipLabel(t){const L=(LANG!=="tr"&&TIPLABEL_I18N[LANG])||TIPLABEL;const n=L[t]||TIPLABEL[t];return n?n+" ("+t+")":t;}
+function renderStat(){if(!PARTS)return;$("setStat").innerHTML=t("statLine",esc(DATA.src),esc(DATA.upd),MODELS.length,PARTS.length.toLocaleString(LOCALE[LANG]),Object.keys(PP).length);}
 function buildIndexes(){
   MODELS=DATA.models; MIDX=MODELS.map(g=>g.m.toUpperCase());
   MOPTS=DATA.mopts||DATA0.mopts||{};
   PARTS=DATA.parts;   PIDX=PARTS.map(p=>(p[0]+" "+p[1]).toUpperCase());
   PP=DATA.pp||{};
   PPIDX=Object.keys(PP).map(k=>k.toUpperCase());
-  $("setStat").innerHTML="Kaynak: <b>"+esc(DATA.src)+"</b> · Güncelleme: <b>"+esc(DATA.upd)+"</b><br>"+
-    "Makine modeli: <b>"+MODELS.length+"</b> · Yedek parça: <b>"+PARTS.length.toLocaleString("tr-TR")+"</b> · Yedek parça makinesi: <b>"+Object.keys(PP).length+"</b>";
+  renderStat();
 }
 function idb(){return new Promise((res,rej)=>{const r=indexedDB.open("do_takeoffer",1);
   r.onupgradeneeded=()=>r.result.createObjectStore("kv");
@@ -500,10 +734,11 @@ $("hlogo").src=_klogo;$("flogo").src=_klogo;
 $("sigLogo").src=(typeof APPLOGO!=="undefined"&&APPLOGO)?APPLOGO:DATA0.logo;
 
 // ================= SÜRÜM / GÜNCELLEME =================
-const APP_VERSION="2026.11.05-7";
+const APP_VERSION="2026.11.05-8";
 // Sürüm biçimi: YYYY.AA.GG-N (N = o günkü derleme sırası). build.py otomatik verir.
 function verKey(v){const m=String(v||"").match(/^(\d{4})\.(\d{2})\.(\d{2})-(\d+)$/);return m?(+(m[1]+m[2]+m[3]))*1000+(+m[4]):0;}
-$("verTxt").innerHTML='<i class="vdot"></i>Sürüm '+APP_VERSION;
+function renderVer(){$("verTxt").innerHTML='<i class="vdot"></i>'+t("version")+' '+APP_VERSION;}
+renderVer();
 $("setVer").textContent=APP_VERSION;
 $("updUrl").value=store.get("yb_updUrl")||"";
 function getUpdateUrl(){return store.get("yb_updUrl")||"";}
@@ -512,7 +747,7 @@ async function checkUpdate(silent){
   if(!url)return;
   const prog=$("updProg");
   try{
-    if(!silent&&prog)prog.textContent="Kontrol ediliyor...";
+    if(!silent&&prog)prog.textContent=t("checking");
     const res=await fetch(url,{cache:"no-store"});
     if(!res.ok)throw new Error("http "+res.status);
     const txt=await res.text();
@@ -521,14 +756,14 @@ async function checkUpdate(silent){
     if(remote&&verKey(remote)>verKey(APP_VERSION)){
       $("btnUpdate").classList.remove("hide");$("verTxt").classList.add("new");
       $("btnUpdate").dataset.url=url;
-      if(!silent&&prog)prog.textContent="✅ Yeni sürüm bulundu: "+remote;
+      if(!silent&&prog)prog.textContent=t("newFound",remote);
     }else{
       $("btnUpdate").classList.add("hide");
-      if(!silent&&prog)prog.textContent="Program güncel ("+APP_VERSION+").";
+      if(!silent&&prog)prog.textContent=t("upToDate",APP_VERSION);
     }
   }catch(e){
     $("btnUpdate").classList.add("hide");
-    if(!silent&&prog)prog.textContent="⚠️ Kontrol edilemedi — internet bağlantısını kontrol edin.";
+    if(!silent&&prog)prog.textContent=t("checkFail");
   }
 }
 $("btnUpdate").addEventListener("click",e=>{
@@ -557,16 +792,17 @@ function showLogin(mode){
   $("lgQErr").textContent="";$("lgOErr").textContent="";$("rgErr").textContent="";
   if(mode==="lgQuick"){
     const u=getUsers()[store.get("yb_lastUser")];
-    if(u){$("lgHelloName").textContent="Hoş geldin, "+u.firma+(u.yetkili?" · "+u.yetkili:"");$("lgHelloMail").textContent=u.mail;$("lgQPass").value="";}
+    if(u){$("lgHelloName").textContent=t("hello",u.firma+(u.yetkili?" · "+u.yetkili:""));$("lgHelloMail").textContent=u.mail;$("lgQPass").value="";}
   }
   if(mode==="lgReg")$("lnkHaveAcc").classList.toggle("hide",Object.keys(getUsers()).length===0);
 }
+function renderUser(){const u=curUser;$("setUser").innerHTML=u?(t("loggedIn")+" <b>"+esc(u.firma)+"</b> · "+esc(u.yetkili||"")+"<br>"+esc(u.mail)):"";}
 function doLogin(u,remember){
   curUser=u;
   if(remember)store.set("yb_lastUser",u.mail);else store.del("yb_lastUser");
   // teklif formuna otomatik doldur
   $("bFirma").value=u.firma||"";$("bYetkili").value=u.yetkili||"";$("bTel").value=u.tel||"";$("bMail").value=u.mail||"";
-  $("setUser").innerHTML="Giriş yapan: <b>"+esc(u.firma)+"</b> · "+esc(u.yetkili||"")+"<br>"+esc(u.mail);
+  renderUser();
   $("loginPage").classList.add("hide");
   $("mainPage").classList.remove("hide");
   window.scrollTo(0,0);
@@ -574,15 +810,15 @@ function doLogin(u,remember){
 $("btnQLogin").onclick=()=>{
   const u=getUsers()[store.get("yb_lastUser")];
   if(!u){showLogin("lgOther");return;}
-  if(hash($("lgQPass").value)!==u.pass){$("lgQErr").textContent="Şifre hatalı.";return;}
+  if(hash($("lgQPass").value)!==u.pass){$("lgQErr").textContent=t("errPass");return;}
   doLogin(u,true);
 };
 $("lgQPass").addEventListener("keydown",e=>{if(e.key==="Enter")$("btnQLogin").click();});
 $("lnkOther").onclick=()=>showLogin("lgOther");
 $("btnOLogin").onclick=()=>{
   const m=$("lgOMail").value.trim().toLowerCase(),u=getUsers()[m];
-  if(!u){$("lgOErr").textContent="Bu e-posta ile kayıt bulunamadı.";return;}
-  if(hash($("lgOPass").value)!==u.pass){$("lgOErr").textContent="Şifre hatalı.";return;}
+  if(!u){$("lgOErr").textContent=t("errNoUser");return;}
+  if(hash($("lgOPass").value)!==u.pass){$("lgOErr").textContent=t("errPass");return;}
   doLogin(u,$("lgORem").checked);
 };
 $("lnkReg").onclick=()=>showLogin("lgReg");
@@ -590,12 +826,12 @@ $("lnkHaveAcc").onclick=()=>showLogin("lgOther");
 $("btnReg").onclick=()=>{
   const firma=$("rgFirma").value.trim(),yetkili=$("rgYetkili").value.trim(),tel=$("rgTel").value.trim(),
         mail=$("rgMail").value.trim().toLowerCase(),p1=$("rgPass").value,p2=$("rgPass2").value;
-  if(!firma||!yetkili||!tel||!mail||!p1){$("rgErr").textContent="Lütfen tüm zorunlu alanları doldurun.";return;}
-  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)){$("rgErr").textContent="Geçerli bir e-posta girin.";return;}
-  if(p1.length<4){$("rgErr").textContent="Şifre en az 4 karakter olmalı.";return;}
-  if(p1!==p2){$("rgErr").textContent="Şifreler uyuşmuyor.";return;}
+  if(!firma||!yetkili||!tel||!mail||!p1){$("rgErr").textContent=t("errFill");return;}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)){$("rgErr").textContent=t("errMail");return;}
+  if(p1.length<4){$("rgErr").textContent=t("errPassLen");return;}
+  if(p1!==p2){$("rgErr").textContent=t("errPassMatch");return;}
   const users=getUsers();
-  if(users[mail]){$("rgErr").textContent="Bu e-posta zaten kayıtlı. Giriş yapın.";return;}
+  if(users[mail]){$("rgErr").textContent=t("errExists");return;}
   users[mail]={firma,yetkili,tel,mail,pass:hash(p1)};
   setUsers(users);
   doLogin(users[mail],$("rgRem").checked);
@@ -629,7 +865,7 @@ function fullReset(){
   $("splash").classList.remove("bye");$("splash").style.display="";
   window.scrollTo(0,0);
 }
-$("btnReset").onclick=()=>{if(confirm("Program başa dönsün mü? Talep listesi silinecek."))fullReset();};
+$("btnReset").onclick=()=>{if(confirm(t("confirmReset")))fullReset();};
 
 // ================= STATE =================
 let mode="M";
@@ -667,7 +903,7 @@ function resetSel(){
   $("pTipCard").classList.add("hide");$("pTips").innerHTML="";
   $("pPartCard").classList.add("hide");
   $("pSearch").value="";$("pList").style.display="none";$("pList").innerHTML="";$("pSel").classList.add("hide");$("pSearch").classList.remove("hide");
-  $("qty").value="0";$("qtyCard").classList.add("hide");$("qtyLbl").textContent="Adet";
+  $("qty").value="0";$("qtyCard").classList.add("hide");$("qtyLbl").textContent=t("qty");
   $("btnAdd").classList.add("hide");optsOpened=false;
 }
 
@@ -693,11 +929,11 @@ function pickModel(i){
   selModel=MODELS[i];selVolt=null;selProd=null;
   $("mList").style.display="none";$("mSearch").classList.add("hide");
   const S=$("mSel");S.classList.remove("hide");
-  S.innerHTML='<div class="code" style="color:var(--blue)">'+esc(selModel.m)+'</div><div class="muted" style="margin-top:4px;cursor:pointer;color:var(--red);font-weight:700" onclick="resetSel()">✕ Değiştir</div>';
+  S.innerHTML='<div class="code" style="color:var(--blue)">'+esc(selModel.m)+'</div><div class="muted" style="margin-top:4px;cursor:pointer;color:var(--red);font-weight:700" onclick="resetSel()">'+t("change")+'</div>';
   const vs=[...new Set(selModel.v.map(v=>v[2]||"Standart"))];
   const VC=$("mVolts");VC.innerHTML="";
   vs.forEach(v=>{
-    const c=document.createElement("button");c.className="chip";c.textContent=v;
+    const c=document.createElement("button");c.className="chip";c.textContent=v==="Standart"?t("standard"):v;
     c.onclick=()=>pickVolt(v,c);
     VC.appendChild(c);
   });
@@ -732,7 +968,7 @@ function showProd(mt){
   curOpts=opts;
   // 3. adım: makine adedi (adet girilince opsiyonlar otomatik açılır)
   $("qtyStep").textContent="3";
-  $("qtyLbl").textContent="Makine Adedi";
+  $("qtyLbl").textContent=t("machQty");
   $("mOptCard").classList.add("hide");$("mOpts").innerHTML="";optsOpened=false;
   $("qty").value="0";qtyChanged();
   $("qtyCard").classList.remove("hide");
@@ -753,7 +989,7 @@ function openOpts(){
     const box=document.createElement("div");box.className="optbox";
     box.innerHTML='<label class="optrow"><input type="checkbox" data-i="'+i+'">'+
       '<div class="otxt"><div class="on1">'+esc(o[1])+'</div><div class="on2">'+(o[0]!=="OPTION"?'<b>'+esc(o[0])+'</b> · ':'')+esc(o[2])+'</div></div></label>'+
-      '<div class="oqtyrow"><span class="oql">ADET</span><button type="button" class="oqm">−</button><input type="number" class="oqty" min="0" value="0" inputmode="numeric"><button type="button" class="oqp">+</button></div>';
+      '<div class="oqtyrow"><span class="oql">'+t("optQty")+'</span><button type="button" class="oqm">−</button><input type="number" class="oqty" min="0" value="0" inputmode="numeric"><button type="button" class="oqp">+</button></div>';
     const cb=box.querySelector("input[type=checkbox]");
     const oq=box.querySelector(".oqty");
     // adet > 0 → opsiyon seçili; işaretlenince adet 0 ise 1 olur; işaret kalkınca adet 0
@@ -809,16 +1045,16 @@ function pickPMachine(mk){
   $("pMList").style.display="none";$("pMSearch").classList.add("hide");
   const S=$("pMSel");S.classList.remove("hide");
   const ak=(DATA.mkak&&DATA.mkak[mk])||[];
-  const akTxt=ak.length?('<div class="muted" style="margin-top:3px">Anakod doğrulandı: '+esc(ak[0])+(ak.length>1?' (+'+(ak.length-1)+' diğer)':'')+'</div>'):'';
+  const akTxt=ak.length?('<div class="muted" style="margin-top:3px">'+t("anakod",esc(ak[0]))+(ak.length>1?' '+t("others",ak.length-1):'')+'</div>'):'';
   S.innerHTML='<div class="code" style="color:var(--blue)">'+esc(mk)+'</div>'+akTxt+
-    '<div class="muted" style="margin-top:6px;cursor:pointer;color:var(--red);font-weight:700" onclick="resetSel()">✕ Değiştir</div>';
+    '<div class="muted" style="margin-top:6px;cursor:pointer;color:var(--red);font-weight:700" onclick="resetSel()">'+t("change")+'</div>';
   // kategori (tip) açılır menüsü — parça sayılarıyla
   const ents=(PP[mk]||[]).filter(e=>e[0]>=0);
   const cnt={};ents.forEach(e=>{cnt[e[1]]=(cnt[e[1]]||0)+1;});
-  const tips=Object.keys(cnt).sort((a,b)=>tipLabel(a).localeCompare(tipLabel(b),"tr"));
+  const tips=Object.keys(cnt).sort((a,b)=>tipLabel(a).localeCompare(tipLabel(b),LOCALE[LANG]));
   const TC=$("pTips");
-  TC.innerHTML='<option value="">TÜMÜ ('+ents.length+' parça)</option>'+
-    tips.map(t=>'<option value="'+esc(t)+'">'+esc(tipLabel(t))+' — '+cnt[t]+' parça</option>').join("");
+  TC.innerHTML='<option value="">'+t("allParts",ents.length)+'</option>'+
+    tips.map(x=>'<option value="'+esc(x)+'">'+esc(tipLabel(x))+' — '+t("nParts",cnt[x])+'</option>').join("");
   TC.value="";
   $("pTipCard").classList.remove("hide");
   $("pPartCard").classList.add("hide");
@@ -844,13 +1080,13 @@ function renderPartList(){
     if(q&&!PIDX[ci].includes(q))continue;
     L.appendChild(pRow(k));n++;
   }
-  if(!n){const d=document.createElement("div");d.className="ri";d.innerHTML='<span class="muted">Sonuç bulunamadı</span>';L.appendChild(d);}
+  if(!n){const d=document.createElement("div");d.className="ri";d.innerHTML='<span class="muted">'+t("noResult")+'</span>';L.appendChild(d);}
 }
 $("pSearch").addEventListener("input",renderPartList);
 function matLine(mi,dn){
   if(mi<0)return"";
   let t=esc(PARTS[mi][0])+" · "+esc(PARTS[mi][1]);
-  if(dn>1)t+=" (+"+(dn-1)+" farklı grup)";
+  if(dn>1)t+=" "+window.t("diffGroup",dn-1);
   return '<div class="pmat">'+t+'</div>';
 }
 function pRow(k){
@@ -866,7 +1102,7 @@ function pickPart(k){
   $("pList").style.display="none";$("pSearch").classList.add("hide");
   const S=$("pSel");S.classList.remove("hide");S.classList.add("psel");
   S.innerHTML='<div class="pcode">'+esc(selPart.code)+'</div>'+matLine(mi,dn)+'<div class="pname">'+esc(selPart.name)+'</div>'+
-    '<div class="muted" style="margin-top:6px;cursor:pointer;color:var(--red);font-weight:700" onclick="changePart()">✕ Parçayı Değiştir</div>';
+    '<div class="muted" style="margin-top:6px;cursor:pointer;color:var(--red);font-weight:700" onclick="changePart()">'+t("changePart")+'</div>';
   $("qtyStep").textContent="4";
   $("qtyCard").classList.remove("hide");
   $("qtyCard").scrollIntoView({behavior:"smooth",block:"center"});
@@ -922,14 +1158,14 @@ $("btnClearSelM").onclick=resetSel;
 function renderCart(){
   const has=cart.length>0;
   $("cartbar").classList.toggle("hide",!has);
-  $("cartCnt").textContent=cart.length+" kalem / "+cart.reduce((a,b)=>a+b.qty,0)+" adet";
+  $("cartCnt").textContent=t("cartCnt",cart.length,cart.reduce((a,b)=>a+b.qty,0));
   const P=$("cartPreview");
   P.classList.toggle("hide",!has);
   if(has){
     let h='<table>';
     cart.forEach((it,i)=>{
-      h+='<tr><td class="c">'+(i+1)+'</td><td class="cd">'+esc(it.code)+'</td><td class="nm">'+esc(it.name)+'</td><td class="c">'+it.qty+'</td><td class="x"><button class="cdel" data-i="'+i+'" title="Kaldır">✕</button></td></tr>';
-      (it.opts||[]).forEach((o,oi)=>{h+='<tr><td></td><td class="cd" style="font-weight:400">↳ '+(o.code!=="OPTION"?esc(o.code):"OPS.")+'</td><td class="nm">'+esc(o.name)+'</td><td class="c">'+(o.qty||1)+'</td><td class="x"><button class="cdel" data-i="'+i+'" data-o="'+oi+'" title="Opsiyonu kaldır">✕</button></td></tr>';});
+      h+='<tr><td class="c">'+(i+1)+'</td><td class="cd">'+esc(it.code)+'</td><td class="nm">'+esc(it.name)+'</td><td class="c">'+it.qty+'</td><td class="x"><button class="cdel" data-i="'+i+'" title="'+t("remove")+'">✕</button></td></tr>';
+      (it.opts||[]).forEach((o,oi)=>{h+='<tr><td></td><td class="cd" style="font-weight:400">↳ '+(o.code!=="OPTION"?esc(o.code):t("opsShort"))+'</td><td class="nm">'+esc(o.name)+'</td><td class="c">'+(o.qty||1)+'</td><td class="x"><button class="cdel" data-i="'+i+'" data-o="'+oi+'" title="'+t("removeOpt")+'">✕</button></td></tr>';});
     });
     P.innerHTML=h+'</table>';
     P.querySelectorAll(".cdel").forEach(b=>b.onclick=()=>{
@@ -941,7 +1177,7 @@ function renderCart(){
   }else P.innerHTML="";
 }
 $("btnClearSel").onclick=resetSel;
-$("btnClearCart").onclick=()=>{if(confirm("Talep listesindeki tüm ürünler silinsin mi?")){cart=[];renderCart();}};
+$("btnClearCart").onclick=()=>{if(confirm(t("confirmClear"))){cart=[];renderCart();}};
 
 // ================= FORM =================
 function renderFormRows(){
@@ -950,7 +1186,7 @@ function renderFormRows(){
     const tr=document.createElement("tr");
     tr.innerHTML='<td class="c">'+(i+1)+'</td><td><b>'+esc(it.code)+'</b></td><td>'+esc(it.name)+'</td>'+
       '<td class="c"><input type="number" class="pfq" min="1" value="'+it.qty+'"></td>'+
-      '<td class="c noprint"><button class="rdel" title="Kaldır">✕</button></td>';
+      '<td class="c noprint"><button class="rdel" title="'+t("remove")+'">✕</button></td>';
     tr.querySelector(".pfq").addEventListener("change",e=>{
       it.qty=Math.max(1,+e.target.value||1);e.target.value=it.qty;renderCart();renderFormRows();
     });
@@ -962,9 +1198,9 @@ function renderFormRows(){
     R.appendChild(tr);
     (it.opts||[]).forEach((o,oi)=>{
       const otr=document.createElement("tr");
-      otr.innerHTML='<td></td><td>'+(o.code!=="OPTION"?'<b>'+esc(o.code)+'</b>':'OPSİYON')+'</td><td>↳ '+esc(o.name)+'</td>'+
+      otr.innerHTML='<td></td><td>'+(o.code!=="OPTION"?'<b>'+esc(o.code)+'</b>':fl("fOption"))+'</td><td>↳ '+esc(o.name)+'</td>'+
         '<td class="c"><input type="number" class="pfq" min="1" value="'+(o.qty||1)+'"></td>'+
-        '<td class="c noprint"><button class="rdel" title="Opsiyonu kaldır">✕</button></td>';
+        '<td class="c noprint"><button class="rdel" title="'+t("removeOpt")+'">✕</button></td>';
       otr.querySelector(".pfq").addEventListener("change",e=>{o.qty=Math.max(1,+e.target.value||1);e.target.value=o.qty;renderCart();});
       otr.querySelector(".rdel").onclick=()=>{it.opts.splice(oi,1);renderCart();renderFormRows();};
       R.appendChild(otr);
@@ -974,7 +1210,7 @@ function renderFormRows(){
 function openForm(){
   if(!cart.length)return;
   const d=new Date();
-  $("pfDate").textContent=d.toLocaleDateString("tr-TR");
+  $("pfDate").textContent=d.toLocaleDateString(LOCALE[LANG]);
   if(!$("pfNo").value)$("pfNo").value="T"+d.getFullYear()+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0")+"-"+String(Math.floor(Math.random()*900)+100);
   renderFormRows();
   $("mainPage").classList.add("hide");$("setPage").classList.add("hide");
@@ -991,12 +1227,12 @@ $("bNot").addEventListener("input",syncNote);
 window.addEventListener("beforeprint",()=>{syncNote();$("pfArea").classList.toggle("nonote",!$("bNot").value.trim());});
 window.addEventListener("afterprint",()=>$("pfArea").classList.remove("nonote"));
 function buildShareText(){
-  let t="YILMAZ MAKİNE – TEKLİF TALEP FORMU\nTalep No: "+$("pfNo").value+"\nTarih: "+$("pfDate").textContent+"\nBayi: "+$("bFirma").value+" / "+$("bYetkili").value+"\nTel: "+$("bTel").value+" · E-posta: "+$("bMail").value+"\n\n";
+  let t=window.t("shHead")+"\n"+window.t("shReqNo")+": "+$("pfNo").value+"\n"+window.t("shDate")+": "+$("pfDate").textContent+"\n"+window.t("shDealer")+": "+$("bFirma").value+" / "+$("bYetkili").value+"\n"+window.t("shTel")+": "+$("bTel").value+" · "+window.t("email")+": "+$("bMail").value+"\n\n";
   cart.forEach((it,i)=>{
-    t+=(i+1)+") "+it.code+" – "+it.name+" – "+it.qty+" adet\n";
-    (it.opts||[]).forEach(o=>{t+="   + "+(o.code!=="OPTION"?o.code+" ":"")+o.name+" – "+(o.qty||1)+" adet\n";});
+    t+=(i+1)+") "+it.code+" – "+it.name+" – "+it.qty+" "+window.t("shUnit")+"\n";
+    (it.opts||[]).forEach(o=>{t+="   + "+(o.code!=="OPTION"?o.code+" ":"")+o.name+" – "+(o.qty||1)+" "+window.t("shUnit")+"\n";});
   });
-  if($("bNot").value)t+="\nNot: "+$("bNot").value;
+  if($("bNot").value)t+="\n"+window.t("shNote")+": "+$("bNot").value;
   return t;
 }
 function copyText(t){
@@ -1029,14 +1265,14 @@ function loadPdfLib(){
 async function shareAsText(){
   const t=buildShareText();
   if(navigator.share){
-    try{await navigator.share({title:"Teklif Talep",text:t});return;}
+    try{await navigator.share({title:window.t("shareTitle"),text:t});return;}
     catch(e){if(e&&e.name==="AbortError")return;}
   }
   const ok=await copyText(t);
-  if(ok)alert("PDF oluşturulamadı (internet gerekli olabilir).\nTalep metni panoya kopyalandı, yapıştırarak gönderebilirsiniz.");
-  else alert("Paylaşım yapılamadı. Yazdır/PDF butonunu kullanabilirsiniz.");
+  if(ok)alert(window.t("pdfFailCopied"));
+  else alert(window.t("shareFail"));
 }
-function pdfName(){return "TeklifTalep_"+($("pfNo").value||"form").replace(/[^\w-]/g,"")+".pdf";}
+function pdfName(){return t("pdfPrefix")+"_"+($("pfNo").value||"form").replace(/[^\w-]/g,"")+".pdf";}
 async function makePdfBlob(){
   const el=$("pfArea");
   await loadPdfLib();
@@ -1057,7 +1293,7 @@ async function makePdfBlob(){
 $("btnView").onclick=async()=>{
   saveB();
   const w=window.open("","_blank");
-  if(w){try{w.document.write('<p style="font-family:sans-serif;padding:20px">Teklif talep formu hazırlanıyor...</p>');}catch(e){}}
+  if(w){try{w.document.write('<p style="font-family:sans-serif;padding:20px">'+t("preparing")+'</p>');}catch(e){}}
   $("btnView").disabled=true;
   try{
     const blob=await makePdfBlob();
@@ -1067,7 +1303,7 @@ $("btnView").onclick=async()=>{
     setTimeout(()=>URL.revokeObjectURL(url),120000);
   }catch(e){
     if(w&&!w.closed)w.close();
-    alert("PDF oluşturulamadı. Yazdır/PDF butonunu kullanabilirsiniz.");
+    alert(t("pdfFail"));
   }finally{$("btnView").disabled=false;}
 };
 $("btnShare").onclick=async()=>{
@@ -1080,7 +1316,7 @@ $("btnShare").onclick=async()=>{
     const file=new File([blob],fname,{type:"application/pdf"});
     // 1) telefon: PDF dosyası olarak paylaşım menüsü
     if(navigator.canShare&&navigator.canShare({files:[file]})){
-      try{await navigator.share({files:[file],title:"Teklif Talep",text:"Yılmaz Makine teklif talep formu"});return;}
+      try{await navigator.share({files:[file],title:t("shareTitle"),text:t("shareText")});return;}
       catch(e){if(e&&e.name==="AbortError")return;}
     }
     // 2) PC: PDF indir
@@ -1088,7 +1324,7 @@ $("btnShare").onclick=async()=>{
     a.href=URL.createObjectURL(blob);a.download=fname;
     document.body.appendChild(a);a.click();document.body.removeChild(a);
     setTimeout(()=>URL.revokeObjectURL(a.href),8000);
-    alert("PDF indirildi: "+fname+"\nWhatsApp veya e-postaya dosya olarak ekleyebilirsiniz.");
+    alert(t("pdfSaved",fname));
   }catch(e){
     await shareAsText();
   }finally{
@@ -1100,7 +1336,7 @@ const BKEYS=["bFirma","bYetkili","bTel","bMail"];
 function saveB(){BKEYS.forEach(k=>store.set("yb_"+k,$(k).value));}
 BKEYS.forEach(k=>{const v=store.get("yb_"+k);if(v)$(k).value=v;});
 $("btnClearB").onclick=()=>{
-  if(!curUser||!confirm("Bu cihazdaki bayi kaydınız silinsin mi?"))return;
+  if(!curUser||!confirm(t("confirmDelB")))return;
   const users=getUsers();delete users[curUser.mail];setUsers(users);
   store.del("yb_lastUser");BKEYS.forEach(k=>{store.del("yb_"+k);$(k).value="";});
   curUser=null;
@@ -1205,20 +1441,20 @@ function processYp(rows,partset,parts){
 $("btnImport").onclick=async()=>{
   const fb=$("fBast").files[0],fy=$("fYp").files[0];
   const P=$("setProg");
-  if(!fb&&!fy){P.textContent="Lütfen en az bir Excel dosyası seçin.";return;}
+  if(!fb&&!fy){P.textContent=t("selExcel");return;}
   try{
-    P.textContent="Kütüphane yükleniyor...";await loadXLSX();
+    P.textContent=t("libLoading");await loadXLSX();
     let nd={models:DATA.models,parts:DATA.parts,pp:DATA.pp,mkak:DATA.mkak};
     let partset=null;
     if(fb){
-      P.textContent="Stok listesi okunuyor... (büyük dosya, lütfen bekleyin)";
+      P.textContent=t("readStock");
       const rows=await readSheet(fb);
       const r=processBast(rows);
       nd.models=r.models;nd.parts=r.parts;partset=r.seen;
       if(!fy){nd.pp={};nd.mkak={};} // parça sırası değişti, eski yedek parça eşlemesi geçersiz — yedek parça listesini de yükleyin
     }
     if(fy){
-      P.textContent="Yedek parça listesi okunuyor...";
+      P.textContent=t("readParts");
       const rows=await readSheet(fy);
       if(!partset)partset=new Set(nd.parts.map(p=>p[0]));
       nd.parts=nd.parts.slice();
@@ -1228,18 +1464,46 @@ $("btnImport").onclick=async()=>{
     }
     nd.src="Excel ("+[fb&&fb.name,fy&&fy.name].filter(Boolean).join(", ")+")";
     nd.upd=new Date().toLocaleDateString("tr-TR");
-    P.textContent="Kaydediliyor...";
+    P.textContent=t("saving");
     await idbSet("override",nd);
     nd.logo=DATA0.logo;DATA=nd;buildIndexes();resetSel();
-    P.textContent="✅ Veriler güncellendi: "+nd.models.length+" model, "+nd.parts.length.toLocaleString("tr-TR")+" parça.";
+    P.textContent=t("dataUpdated",nd.models.length,nd.parts.length.toLocaleString(LOCALE[LANG]));
     $("fBast").value="";$("fYp").value="";
-  }catch(e){P.textContent="⚠️ Hata: "+e.message;}
+  }catch(e){P.textContent=t("errPrefix",e.message);}
 };
 $("btnResetData").onclick=async()=>{
   await idbDel("override");
   DATA=DATA0;buildIndexes();resetSel();
-  $("setProg").textContent="Gömülü veriye dönüldü.";
+  $("setProg").textContent=t("backEmbedded");
 };
+
+// ================= DİL SEÇİMİ =================
+function renderLangRows(){
+  ["langRow","langRowSet"].forEach(id=>{
+    const R=$(id);if(!R)return;
+    R.innerHTML=LANGS.map(l=>'<button type="button" class="lb'+(l===LANG?' on':'')+'" data-l="'+l+'">'+FLAGS[l]+'<span>'+LANGNAME[l]+'</span></button>').join("");
+    R.querySelectorAll(".lb").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();setLang(b.dataset.l);}));
+  });
+}
+function applyLang(){
+  document.documentElement.lang=LANG;
+  document.querySelectorAll("[data-i18n]").forEach(el=>{el.textContent=t(el.dataset.i18n);});
+  document.querySelectorAll("[data-i18n-html]").forEach(el=>{el.innerHTML=t(el.dataset.i18nHtml);});
+  document.querySelectorAll("[data-i18n-ph]").forEach(el=>{el.placeholder=t(el.dataset.i18nPh);});
+  document.querySelectorAll("[data-i18n-title]").forEach(el=>{el.title=t(el.dataset.i18nTitle);});
+  document.querySelectorAll("[data-fl]").forEach(el=>{el.innerHTML=fl(el.dataset.fl);});
+  renderLangRows();renderVer();renderStat();renderUser();renderCart();
+  if(!$("formPage").classList.contains("hide")){renderFormRows();$("pfDate").textContent=new Date().toLocaleDateString(LOCALE[LANG]);}
+  if(!$("loginPage").classList.contains("hide")){const q=!$("lgQuick").classList.contains("hide");if(q)showLogin("lgQuick");}
+}
+function setLang(l){
+  if(!LANGS.includes(l)||l===LANG)return;
+  LANG=l;store.set("yb_lang",l);
+  // yarım kalan seçimdeki dinamik metinler yeni dilde yeniden kurulsun
+  if(selModel||selMachP)resetSel();
+  applyLang();
+}
+applyLang();
 </script>
 </body>
 </html>
